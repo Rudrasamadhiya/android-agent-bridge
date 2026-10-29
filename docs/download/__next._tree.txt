@@ -1,8 +1,8 @@
-:HL["/android-agent-bridge/_next/static/chunks/42qozxbt40lp5.css","style"]
+:HL["/android-agent-bridge/_next/static/chunks/1pdf_ayo63osy.css","style"]
 :HL["/android-agent-bridge/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/android-agent-bridge/_next/static/media/9e9f04e3c37952ab-s.p.0pan85mumqyf3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/android-agent-bridge/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/android-agent-bridge/icon.svg","image"]
 2:[["children",{"s":"__PAGE__","h":160}]]
 1:[["children",{"s":"download","h":96,"c":"$Q2"}]]
-0:{"b":"kKrQsezZ5wZ0mmGZ3k-Kg","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
+0:{"b":"mws28yUSKpR8kyGb3WcIW","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

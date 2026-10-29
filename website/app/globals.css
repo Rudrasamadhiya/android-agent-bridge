@@ -144,7 +144,7 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-in
 /* pinned live demo */
 .demo { position: relative; height: 480vh; }
 .demo-stick { position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; align-items: center; }
-.demo-fade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(var(--bg) 0%, transparent 25%, transparent 70%, rgba(61, 220, 151, 0.1) 100%); }
+.demo-fade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(var(--bg) 0%, transparent 22%, transparent 78%, var(--bg) 100%); }
 .demo-grid { position: relative; width: 100%; display: grid; grid-template-columns: 1fr 1fr min(300px, 36svh); gap: 48px; align-items: center; }
 .demo-num { height: 0.85em; overflow: hidden; font: 400 clamp(130px, 16vw, 250px)/0.85 var(--display); color: transparent; -webkit-text-stroke: 2px var(--accent); margin-top: 16px; }
 .demo-num span { display: inline-block; }
@@ -186,12 +186,13 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-in
 
 /* horizontal feature rail */
 .rail { position: relative; }
-.rail-stick { position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+.rail-stick { position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; padding-top: 72px; }
+.rail .disp { font-size: clamp(44px, min(6.4vw, 9svh), 104px); }
 .rail-head { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; }
 .rail-prog { width: 220px; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; margin-bottom: 14px; flex: none; }
 .rail-prog i { display: block; height: 100%; background: var(--accent); }
-.rail-track { display: flex; gap: 22px; padding: 0 max(24px, calc((100vw - 1240px) / 2 + 24px)); margin-top: 44px; width: max-content; }
-.fcard { flex: none; width: min(560px, 80vw); height: 520px; display: grid; grid-template-rows: 1fr auto; border-radius: 28px; border: 1px solid var(--line-2); background: linear-gradient(160deg, var(--surface-2), var(--bg-2)); overflow: hidden; transition: border-color 0.3s, transform 0.4s var(--ease); }
+.rail-track { display: flex; gap: 22px; padding: 0 max(24px, calc((100vw - 1240px) / 2 + 24px)); margin-top: clamp(20px, 3svh, 44px); width: max-content; }
+.fcard { flex: none; width: min(560px, 80vw); height: clamp(400px, calc(100svh - 72px - 22svh - 60px), 540px); display: grid; grid-template-rows: 1fr auto; border-radius: 28px; border: 1px solid var(--line-2); background: linear-gradient(160deg, var(--surface-2), var(--bg-2)); overflow: hidden; transition: border-color 0.3s, transform 0.4s var(--ease); }
 .fcard:hover { border-color: rgba(61, 220, 151, 0.5); transform: translateY(-6px); }
 .fcard-text { padding: 26px 30px 30px; }
 .fcard-k { font: 500 12px var(--mono); color: var(--accent); letter-spacing: 0.1em; }
