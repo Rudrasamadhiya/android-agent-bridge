@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Android Agent Bridge — give your AI agent a phone</title>
+<meta name="description" content="Let Claude Code, Cursor, Antigravity or any MCP agent use your Android phone: read the screen, tap, type, open apps, change settings and move files. Pair by QR over Wi-Fi or USB. Open source, Android 5.0+.">
+<meta property="og:title" content="Android Agent Bridge">
+<meta property="og:description" content="Give your AI agent a real Android phone. Pair by QR, then let it read, tap, type and move files.">
+<meta name="theme-color" content="#07080a">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css?v=2">
+<style>
+  .hero { padding: 72px 0 0; position: relative; }
+  .hero::before { content: ""; position: absolute; inset: -60px 0 auto; height: 520px; pointer-events: none;
+    background: radial-gradient(600px 300px at 72% 30%, rgba(61, 220, 151, 0.13), transparent 70%); }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: center; position: relative; }
+  @media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; } }
+  .hero h1 { max-width: 11ch; font-size: clamp(40px, 6.4vw, 68px); line-height: 1.02; letter-spacing: -0.04em; margin-top: 18px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero .lede { font-size: 19px; }
+  .hero .cmd { margin-top: 32px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 28px; color: var(--faint); font: 13px var(--mono); }
+  .meta span::before { content: "● "; color: var(--accent); }
+  .stage { position: relative; padding-right: 96px; }
+  @media (max-width: 900px) { .stage { padding-right: 0; } }
+  .stage .phone { position: absolute; right: -12px; bottom: -48px; width: 160px; transform: rotate(3deg); }
+  @media (max-width: 900px) { .stage .phone { display: none; } }
+
+  .works { margin-top: 88px; border-block: 1px solid var(--line); background: var(--surface); }
+  .works .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 28px; padding-block: 18px; color: var(--muted); font-size: 15px; }
+  .works b { color: var(--faint); font: 500 12px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .steps { display: grid; gap: 14px; margin-top: 40px; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); counter-reset: s; }
+  .step { counter-increment: s; }
+  .step .n::before { content: counter(s, decimal-leading-zero); font: 500 13px var(--mono); color: var(--accent); }
+  .step .cmd { margin-top: 16px; font-size: 13px; }
+  .step p { min-height: 48px; }
+
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 48px; }
+  @media (max-width: 760px) { .shots { grid-template-columns: 1fr; max-width: 300px; margin-inline: auto; } }
+  .shots figure { margin: 0; }
+  .shots figcaption { margin-top: 16px; font-size: 15px; }
+  .shots figcaption span { display: block; color: var(--muted); font-size: 14px; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; margin-top: 40px; }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+  .list { list-style: none; padding: 0; margin: 20px 0 0; }
+  .list li { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); color: var(--muted); }
+  .list li:first-child { border-top: 0; }
+  .list li b { color: var(--text); font-weight: 600; }
+  .check { flex: none; color: var(--accent); font: 600 14px var(--mono); }
+
+  details { border-bottom: 1px solid var(--line); padding: 18px 0; }
+  details summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 16px; font-weight: 600; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: "+"; color: var(--accent); font-family: var(--mono); }
+  details[open] summary::after { content: "–"; }
+  details p { color: var(--muted); margin: 10px 0 0; }
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="assets/icon.svg" alt="">Agent Bridge</a>
+    <div class="nav-links">
+      <a class="hide-sm" href="#features">Features</a>
+      <a class="hide-sm" href="#transfer">Transfer</a>
+      <a class="hide-sm" href="#security">Security</a>
+      <a href="guide.html">Commands</a>
+      <a href="https://github.com/Rudrasamadhiya/android-agent-bridge">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <header class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Open source · MIT · Android 5.0+</p>
+        <h1>Give your AI agent <em>a real phone.</em></h1>
+        <p class="lede">Claude Code, Cursor, Antigravity or any MCP agent can read your Android screen, tap, type, open apps, change settings and move files. Pair once with a QR code over Wi-Fi, or plug in USB.</p>
+        <div class="cmd" role="group" aria-label="Start command">
+          <span class="p">$</span><code>npx github:Rudrasamadhiya/android-agent-bridge start</code>
+          <button class="copy" type="button">COPY</button>
+        </div>
+        <div class="ctas">
+          <a class="btn primary" href="https://github.com/Rudrasamadhiya/android-agent-bridge/raw/main/apk/agent-bridge.apk">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 4v11M8 11l4 4 4-4M5 19h14"/></svg>
+            Download the app
+          </a>
+          <a class="btn" href="https://github.com/Rudrasamadhiya/android-agent-bridge">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.15-1.11-1.46-1.11-1.46-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>
+            Star on GitHub
+          </a>
+        </div>
+        <div class="meta"><span>Wi-Fi or USB</span><span>Runs on your computer</span><span>No account</span></div>
+      </div>
+
+      <div class="stage">
+        <div class="term" aria-label="Example session">
+          <div class="term-bar"><i></i><i></i><i></i><span>agent → phone</span></div>
+          <pre id="term"></pre>
+        </div>
+        <div class="phone"><img src="assets/tab-connect.webp" alt="Agent Bridge app, Connect tab, connected over USB"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="works">
+    <div class="wrap"><b>Works with</b><span>Claude Code</span><span>Cursor</span><span>Antigravity</span><span>Any MCP client</span><span>Plain shell scripts</span></div>
+  </div>
+
+  <section id="how">
+    <div class="wrap">
+      <p class="eyebrow">Setup</p>
+      <h2>Two minutes, three steps.</h2>
+      <div class="steps">
+        <div class="card step"><span class="n"></span><h3>Install the app</h3>
+          <p>Plug the phone in with USB debugging on. The CLI installs the app and switches it on.</p>
+          <div class="cmd"><span class="p">$</span><code>npx github:Rudrasamadhiya/android-agent-bridge usb</code><button class="copy" type="button">COPY</button></div></div>
+        <div class="card step"><span class="n"></span><h3>Pair by QR</h3>
+          <p>Start the bridge, open Agent Bridge on the phone and scan. After that it reconnects by itself.</p>
+          <div class="cmd"><span class="p">$</span><code>npx github:Rudrasamadhiya/android-agent-bridge start</code><button class="copy" type="button">COPY</button></div></div>
+        <div class="card step"><span class="n"></span><h3>Ask your agent</h3>
+          <p>Add the MCP server to your project, restart your agent, and ask it to use the phone.</p>
+          <div class="cmd"><span class="p">$</span><code>npx github:Rudrasamadhiya/android-agent-bridge init</code><button class="copy" type="button">COPY</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <p class="eyebrow">What it can do</p>
+      <h2>Everything a person does on a phone, as tools your agent can call.</h2>
+      <div class="grid">
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <h3>Sees the screen</h3><p>A numbered list of every button, field and text on screen, plus screenshots with each element boxed. It knows what's hidden under sheets and dialogs.</p></article>
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11V5a2 2 0 0 1 4 0v6M13 10a2 2 0 0 1 4 0v3a7 7 0 0 1-7 7h-.5A5.5 5.5 0 0 1 4 15l-1-3a2 2 0 0 1 3.5-1.5L9 13"/></svg></div>
+          <h3>Acts like a person</h3><p>Tap by number, text or position, type into fields without the keyboard, scroll, swipe, long-press, press Back and Home, open any app by name.</p></article>
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M8 9h8M8 12h8M8 15h5"/></svg></div>
+          <h3>Reads what apps hide</h3><p>Many apps hide tab bars and buttons from accessibility. On-device OCR reads the pixels, so “tap Account” still works. Nothing leaves the phone.</p></article>
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></div>
+          <h3>Controls the device</h3><p>Volume for every stream, brightness, flashlight, rotation, Do Not Disturb, any settings page, links and deep links, battery and notifications.</p></article>
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 4v14M7 4 4 7M7 4l3 3M17 20V6M17 20l-3-3M17 20l3-3"/></svg></div>
+          <h3>Moves files both ways</h3><p>Send from the terminal or a drag-and-drop page to the phone; share from any phone app to the computer. Streams any size.</p></article>
+        <article class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg></div>
+          <h3>Old phones welcome</h3><p>Works back to Android 5.0 (2015). Where old Android can't do something itself, the computer does it over USB.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="app">
+    <div class="wrap">
+      <p class="eyebrow">The app</p>
+      <h2>A small app that stays out of the way.</h2>
+      <p class="lede">Pair, check the connection, move files, and decide what the agent may touch. That's all it does.</p>
+      <div class="shots">
+        <figure><div class="phone"><img src="assets/tab-connect.webp" alt="Connect tab" loading="lazy"></div>
+          <figcaption>Connect<span>The computer, pairing and the switches the agent needs.</span></figcaption></figure>
+        <figure><div class="phone"><img src="assets/tab-transfer.webp" alt="Transfer tab" loading="lazy"></div>
+          <figcaption>Transfer<span>Send files to the computer, see what arrived.</span></figcaption></figure>
+        <figure><div class="phone"><img src="assets/tab-device.webp" alt="Device tab" loading="lazy"></div>
+          <figcaption>Device<span>Its name, optional permissions, unpairing.</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="transfer">
+    <div class="wrap">
+      <p class="eyebrow">Transfer</p>
+      <h2>AirDrop between your computer and your phone.</h2>
+      <div class="split">
+        <div>
+          <ul class="list">
+            <li><span class="check">→</span><span><b>Computer to phone.</b> <code>send photo.jpg</code>, or drag files onto <code>localhost:8350/drop</code>. They land in Downloads/Agent Bridge.</span></li>
+            <li><span class="check">←</span><span><b>Phone to computer.</b> Transfer → Choose files, or Share → Agent Bridge from any app. They land in Downloads/Agent Bridge on the computer.</span></li>
+            <li><span class="check">✓</span><span><b>Same Wi-Fi, hotspot or USB.</b> It uses the bridge's own connection: no cloud, no size limit.</span></li>
+            <li><span class="check">✓</span><span><b>Agents can use it too.</b> <code>phone_send_files</code> and <code>phone_received_files</code>.</span></li>
+          </ul>
+        </div>
+        <pre class="block" aria-label="Transfer example"># phone = npx github:Rudrasamadhiya/android-agent-bridge
+<span class="k">$ phone send report.pdf</span>
+<span class="s">Sent report.pdf (2.4 MB) → phone: Downloads/Agent Bridge/report.pdf</span>
+
+<span class="k">$ phone received</span>
+Folder: C:\Users\you\Downloads\Agent Bridge
+  29/10/2026, 11:45 pm    3.1 MB  IMG_20261029.jpg
+  29/10/2026, 11:41 pm   48.2 KB  receipt.pdf</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="mcp">
+    <div class="wrap">
+      <p class="eyebrow">For agents</p>
+      <h2>An MCP server with 30+ tools.</h2>
+      <div class="split">
+        <div>
+          <p class="lede" style="margin-top:0">Run <code>init</code> in your project, or add this to any MCP client. The agent gets tools like <code>phone_screen</code>, <code>phone_tap</code>, <code>phone_type</code>, <code>phone_open_app</code>, <code>phone_volume</code> and <code>phone_send_files</code>, plus a short guide on using them safely.</p>
+          <p style="margin-top:20px"><a class="btn" href="guide.html">See every command →</a></p>
+        </div>
+        <pre class="block" aria-label="MCP configuration">{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"phone"</span>: {
+      <span class="k">"command"</span>: <span class="s">"npx"</span>,
+      <span class="k">"args"</span>: [<span class="s">"-y"</span>, <span class="s">"github:Rudrasamadhiya/android-agent-bridge"</span>]
+    }
+  }
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="security">
+    <div class="wrap">
+      <p class="eyebrow">Security & privacy</p>
+      <h2>Your phone, your network, your rules.</h2>
+      <div class="grid">
+        <article class="card"><h3>Paired, not public</h3><p>Only a computer holding the secret from your QR code can connect. Make a new one any time with <code>pair --reset</code>.</p></article>
+        <article class="card"><h3>Stays local</h3><p>The phone talks to your computer over Wi-Fi or USB. No cloud, no account, no analytics. OCR runs on the phone.</p></article>
+        <article class="card"><h3>One switch to stop</h3><p>Turn off Agent Bridge's accessibility service and access ends at once. Forget the computer from the app.</p></article>
+        <article class="card"><h3>Agents ask first</h3><p>The bundled guide tells agents to ask before sending, paying, posting or deleting, and never to type passwords.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap" style="max-width:800px">
+      <p class="eyebrow">FAQ</p>
+      <h2>Questions</h2>
+      <div style="margin-top:24px">
+        <details><summary>Play Protect says “App blocked to protect your device”</summary>
+          <p>Google blocks sideloaded apps that use accessibility when they are opened from a browser or chat app. Install over USB instead: <code>npx github:Rudrasamadhiya/android-agent-bridge usb</code>. After that, Wi-Fi works too.</p></details>
+        <details><summary>Does it work on iPhone?</summary>
+          <p>No. It relies on Android's accessibility service, which iOS does not offer to apps.</p></details>
+        <details><summary>Can banking and streaming apps be controlled?</summary>
+          <p>Those apps block screenshots, so the screen comes out black. Their element list often still works, but some screens stay off-limits by design.</p></details>
+        <details><summary>Do I need USB?</summary>
+          <p>Only to install the app the first time. Day to day it works over the same Wi-Fi or a hotspot. On Android 5 and 6, tapping by position also needs USB.</p></details>
+        <details><summary>What does it cost?</summary>
+          <p>Nothing. It's open source under the MIT license.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="./"><img src="assets/icon.svg" alt="">Agent Bridge</a>
+    <span>MIT license · Made by <a href="https://github.com/Rudrasamadhiya">Rudra Samadhiya</a></span>
+    <span><a href="guide.html">Commands</a> · <a href="https://github.com/Rudrasamadhiya/android-agent-bridge">GitHub</a> · <a href="https://github.com/Rudrasamadhiya/android-agent-bridge/issues">Issues</a></span>
+  </div>
+</footer>
+
+<script>
+  // copy buttons
+  document.querySelectorAll('.copy').forEach((b) => b.addEventListener('click', async () => {
+    const text = b.parentElement.querySelector('code').textContent;
+    try { await navigator.clipboard.writeText(text); b.textContent = 'COPIED'; } catch { b.textContent = 'SELECT'; }
+    setTimeout(() => (b.textContent = 'COPY'), 1500);
+  }));
+
+  // the hero terminal plays a short agent session
+  const lines = [
+    ['in', 'phone launch Uber'], ['out', 'Opened Uber (com.ubercab)'],
+    ['in', 'phone tap "Where to?"'], ['out', 'Tapped at 540,355'],
+    ['in', 'phone type "DB Mall" --into 9'], ['out', '[14] button "DB Mall, Zone-I, Bhopal" @540,733'],
+    ['in', 'phone volume 40%'], ['ok', 'media volume 6/15 · ringer normal'],
+    ['in', 'phone send boarding-pass.pdf'], ['ok', 'Sent boarding-pass.pdf → phone: Downloads/Agent Bridge'],
+  ];
+  const term = document.getElementById('term');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function render(upto, partial) {
+    term.innerHTML = lines.slice(0, upto).map(([k, t]) => `<div class="${k === 'in' ? 'in' : k === 'ok' ? 'ok' : ''}">${t.replace(/</g, '&lt;')}</div>`).join('')
+      + (partial != null ? `<div class="in">${partial.replace(/</g, '&lt;')}<span class="cursor"></span></div>` : '<span class="cursor"></span>');
+  }
+  if (still) render(lines.length);
+  else (async function play() {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    for (;;) {
+      for (let i = 0; i < lines.length; i++) {
+        const [kind, t] = lines[i];
+        if (kind === 'in') { for (let c = 1; c <= t.length; c++) { render(i, t.slice(0, c)); await wait(38); } await wait(250); }
+        render(i + 1); await wait(kind === 'in' ? 350 : 700);
+      }
+      await wait(3500);
+    }
+  })();
+</script>
+</body>
+</html>
