@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 5-7 launcher icon: same art on a rounded square -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="48dp" android:height="48dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#0B0D10" android:pathData="M30,6h48a24,24 0,0 1,24 24v48a24,24 0,0 1,-24 24h-48a24,24 0,0 1,-24 -24v-48a24,24 0,0 1,24 -24z" />
+    <path android:strokeColor="#F2F4F7" android:strokeWidth="4" android:fillColor="#00000000" android:pathData="M45,25h18a9,9 0,0 1,9 9v40a9,9 0,0 1,-9 9h-18a9,9 0,0 1,-9 -9v-40a9,9 0,0 1,9 -9z" />
+    <path android:strokeColor="#F2F4F7" android:strokeWidth="4" android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000" android:pathData="M45.5,47l7,6l-7,6" />
+    <path android:strokeColor="#3DDC97" android:strokeWidth="4" android:strokeLineCap="round" android:pathData="M56,59h8" />
+</vector>

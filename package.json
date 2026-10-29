@@ -1,0 +1,53 @@
+{
+  "name": "android-agent-bridge",
+  "version": "0.1.0",
+  "description": "Give AI agents (Claude Code, Cursor, Antigravity) your whole Android phone: screenshots with numbered elements and a tap grid, tap, type, scroll, open apps. Pair once by QR over Wi-Fi or plug in USB. Android 5.0+.",
+  "keywords": [
+    "android",
+    "mcp",
+    "model-context-protocol",
+    "ai-agent",
+    "claude-code",
+    "cursor",
+    "antigravity",
+    "phone-control",
+    "accessibility",
+    "automation",
+    "adb",
+    "mobile-testing"
+  ],
+  "license": "MIT",
+  "author": "Rudra Samadhiya",
+  "homepage": "https://github.com/Rudrasamadhiya/android-agent-bridge#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rudrasamadhiya/android-agent-bridge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Rudrasamadhiya/android-agent-bridge/issues"
+  },
+  "bin": {
+    "android-agent-bridge": "server/cli.mjs",
+    "phonectl": "server/cli.mjs"
+  },
+  "files": [
+    "server",
+    "skill",
+    "apk",
+    "README.md",
+    "LICENSE",
+    "AI_SETUP.md"
+  ],
+  "scripts": {
+    "test": "node --test test/bridge.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "qrcode": "^1.5.4",
+    "ws": "^8.22.0",
+    "zod": "^4.6.7"
+  }
+}

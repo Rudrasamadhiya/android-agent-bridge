@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The bridge runs on the user's own computer on the local network (ws://),
+     so cleartext is allowed. Connections are authenticated by the pairing token. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

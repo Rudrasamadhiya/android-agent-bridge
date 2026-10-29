@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed icon (Android 13+) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="4" android:fillColor="#00000000" android:pathData="M45,25h18a9,9 0,0 1,9 9v40a9,9 0,0 1,-9 9h-18a9,9 0,0 1,-9 -9v-40a9,9 0,0 1,9 -9z" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="4" android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000" android:pathData="M45.5,47l7,6l-7,6" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="4" android:strokeLineCap="round" android:pathData="M56,59h8" />
+</vector>

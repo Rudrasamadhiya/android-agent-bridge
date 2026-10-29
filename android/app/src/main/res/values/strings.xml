@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Agent Bridge</string>
+    <string name="a11y_description">Lets the AI agent on your paired computer see the screen and tap, type and scroll for you. It only connects to the computer you paired by QR code or USB. Turn it off here at any time to cut access.</string>
+</resources>
