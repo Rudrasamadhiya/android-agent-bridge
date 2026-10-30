@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, type MotionValue } from "motion/react"
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { asset } from "@/lib/site";
 import CopyCmd from "./CopyCmd";
+import Tilt from "./Tilt";
 
 const ease = [0.2, 0.7, 0.2, 1] as const;
 
@@ -153,7 +154,7 @@ export function FeatureRail() {
         </div>
         <motion.div className="rail-track" ref={track} style={pinned ? { x } : undefined}>
           {FEATURES.map((f) => (
-            <article className="fcard" key={f.k}>
+            <Tilt as="article" className="fcard" key={f.k} max={7}>
               <Visual v={f.vis} />
               <div className="fcard-text">
                 <span className="fcard-k">{f.k}</span>
@@ -161,7 +162,7 @@ export function FeatureRail() {
                 <p>{f.d}</p>
                 <div className="chips">{f.tools.map((t) => <code key={t}>{t}</code>)}</div>
               </div>
-            </article>
+            </Tilt>
           ))}
         </motion.div>
       </div>
@@ -191,11 +192,13 @@ export function QuickStart() {
             { n: "02", t: "Start the bridge", d: "Open Agent Bridge on the phone and scan the QR. It reconnects by itself after that.", cmd: "npx android-agent-bridge start" },
             { n: "03", t: "Connect your agent", d: "Add the MCP server, restart the agent and ask it to use the phone.", cmd: "npx android-agent-bridge init" },
           ].map((s, i) => (
-            <Reveal key={s.n} delay={i * 0.08} className="step">
-              <span className="step-n">{s.n}</span>
-              <h3>{s.t}</h3>
-              <p>{s.d}</p>
-              <CopyCmd cmd={s.cmd} />
+            <Reveal key={s.n} delay={i * 0.08}>
+              <Tilt className="step" max={6}>
+                <span className="step-n">{s.n}</span>
+                <h3>{s.t}</h3>
+                <p>{s.d}</p>
+                <CopyCmd cmd={s.cmd} />
+              </Tilt>
             </Reveal>
           ))}
         </div>
@@ -263,12 +266,14 @@ export function Security() {
         <Title>Your phone. *Your rules.*</Title>
         <div className="sec-grid">
           {items.map((x, i) => (
-            <Reveal key={x.t} delay={(i % 3) * 0.08} className="sec-card">
+            <Reveal key={x.t} delay={(i % 3) * 0.08}>
+              <Tilt className="sec-card">
               <span className="lock" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
               </span>
               <h3>{x.t}</h3>
               <p>{x.d}</p>
+              </Tilt>
             </Reveal>
           ))}
         </div>
