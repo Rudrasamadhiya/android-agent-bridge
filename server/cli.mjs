@@ -260,7 +260,17 @@ function findApk() {
 
 async function usb() {
   await ensureAdb().catch((e) => die(e.message));
-  const list = await devices().catch((e) => die(e.message));
+  // a freshly started adb takes a moment to see a phone, so look a few times before giving up
+  let list = [];
+  for (let i = 0; i < 8 && !list.length; i++) {
+    list = await devices().catch((e) => die(e.message));
+    if (list.length) break;
+    const raw = await adb(['devices'], { serial: null }).catch(() => '');
+    if (/\tunauthorized/.test(raw)) {
+      if (i === 0) console.log('Phone found. On the phone, tap "Allow" on the "Allow USB debugging?" prompt (tick "Always allow").');
+    } else if (i >= 3) break;
+    await wait(1500);
+  }
   if (!list.length) {
     die('No phone found over USB.\n1. Settings → About phone → tap "Build number" 7 times (developer mode).\n2. Settings → Developer options → turn on USB debugging.\n3. Plug the phone in and accept the "Allow USB debugging?" prompt.\n\nNo cable? Android 11+ can do this over Wi-Fi: npx android-agent-bridge wifi');
   }
