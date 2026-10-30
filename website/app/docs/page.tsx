@@ -155,6 +155,13 @@ export default function Docs() {
 
           <h2 id="changelog">Changelog</h2>
           <div className="change">
+            <div className="change-head"><b>v0.1.4</b><span>October 2026</span></div>
+            <ul className="doc-list">
+              <li><code>usb</code> waits a few seconds for a phone that adb has only just started to see, and tells you to tap “Allow” when the phone asks.</li>
+              <li>Clearer message when no phone is found over USB, pointing to <code>wifi</code> for cable-free setup.</li>
+            </ul>
+          </div>
+          <div className="change">
             <div className="change-head"><b>v0.1.3</b><span>October 2026</span></div>
             <ul className="doc-list">
               <li>New <code>wifi</code> command: install and pair over Wi-Fi with Android 11+ wireless debugging, no cable.</li>
