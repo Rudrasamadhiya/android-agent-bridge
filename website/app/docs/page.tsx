@@ -154,6 +154,13 @@ export default function Docs() {
 
           <h2 id="changelog">Changelog</h2>
           <div className="change">
+            <div className="change-head"><b>v0.1.2</b><span>October 2026</span></div>
+            <ul className="doc-list">
+              <li>Six built-in MCP prompts (in Claude Code: /mcp__phone__do_in_app, /mcp__phone__test_my_app and more).</li>
+              <li>New Get started guide with a prompt library, and a rewritten README.</li>
+            </ul>
+          </div>
+          <div className="change">
             <div className="change-head"><b>v0.1.1</b><span>October 2026</span></div>
             <ul className="doc-list">
               <li>QR scanner is now a portrait pop-up that slides up from the bottom, with a flash button.</li>

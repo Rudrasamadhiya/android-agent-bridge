@@ -1,6 +1,6 @@
 {
   "name": "android-agent-bridge",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Give AI agents (Claude Code, Cursor, Antigravity) your whole Android phone: screenshots with numbered elements and a tap grid, tap, type, scroll, open apps. Pair once by QR over Wi-Fi or plug in USB. Android 5.0+.",
   "keywords": [
     "android",
