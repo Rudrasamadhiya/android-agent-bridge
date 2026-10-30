@@ -94,6 +94,7 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-in
 .sheet-foot { display: flex; gap: 22px; font: 500 13px var(--mono); text-transform: uppercase; letter-spacing: 0.1em; }
 .sheet-foot a { color: var(--muted); text-decoration: none; }
 @media (max-width: 480px) { .nav .gh { display: none; } .nav-in { gap: 10px; padding-left: 14px; } .nav .btn-lime { padding: 8px 12px; } }
+@media (max-width: 400px) { .nav-right > .btn-lime { display: none; } }
 
 /* hero */
 .hero { position: relative; min-height: 100svh; overflow: hidden; display: flex; align-items: center; padding: 120px 0 90px; }
