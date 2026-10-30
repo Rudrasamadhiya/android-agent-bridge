@@ -6,6 +6,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { createRequire } from 'node:module';
 import { Bridge } from './bridge.mjs';
+import { registerPrompts } from './prompts.mjs';
 
 const { version: VERSION } = createRequire(import.meta.url)('../package.json');
 const log = (...a) => process.stderr.write('[android-agent-bridge] ' + a.join(' ') + '\n');
@@ -226,6 +227,7 @@ export async function startServer() {
   const bridge = new Bridge({ log, host: true });
   const server = new McpServer({ name: 'android-agent-bridge', version: VERSION });
   registerTools(server, bridge);
+  registerPrompts(server);
   await server.connect(new StdioServerTransport());
   bridge.ensure().then(async () => {
     if (bridge.hub) {

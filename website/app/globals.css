@@ -391,3 +391,27 @@ td.yes { color: var(--accent); font-weight: 600; }
 @media (prefers-reduced-motion: reduce) {
   .ticker-track { animation-duration: 80s; }
 }
+
+/* getting-started guide */
+.need-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.need { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); }
+.need b { color: var(--text); font-size: 16px; }
+.need span { color: var(--muted); font-size: 14px; }
+@media (max-width: 600px) { .need-grid { grid-template-columns: 1fr; } }
+.prompt-group { margin-top: 30px; }
+.prompt-group h3 { margin-top: 0; }
+.prompt-blurb { margin: 4px 0 0; font-size: 14.5px; }
+.prompt-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+@media (max-width: 700px) { .prompt-grid { grid-template-columns: 1fr; } }
+.prompt { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; text-align: left; padding: 18px 18px 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: 15px/1.5 var(--sans); cursor: pointer; transition: border-color 0.2s, background 0.2s, transform 0.25s var(--ease); min-width: 0; }
+.prompt:hover { border-color: rgba(61, 220, 151, 0.45); background: var(--surface-2); transform: translateY(-2px); }
+.prompt-text::before { content: "“"; color: var(--accent); }
+.prompt-text::after { content: "”"; color: var(--accent); }
+.prompt-copy { align-self: flex-end; font: 600 11px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.prompt:hover .prompt-copy { color: var(--accent); }
+.doc .prompt { margin: 12px 0; }
+.doc .prompt-grid .prompt { margin: 0; }
+.guide-code { margin: 14px 0; border: 1px solid var(--line-2); border-radius: 16px; overflow: hidden; background: var(--bg-2); }
+.try-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 44px; }
+@media (max-width: 900px) { .try-grid { grid-template-columns: 1fr; } }
+.try-more { margin-top: 24px; }

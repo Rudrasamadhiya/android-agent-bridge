@@ -6,9 +6,9 @@ import { GITHUB, NPM, asset } from "@/lib/site";
 import { useStats } from "@/lib/useStats";
 
 const LINKS = [
+  ["Get started", "/start/"],
   ["Demo", "/#demo"],
   ["Features", "/#features"],
-  ["Quick start", "/#start"],
   ["Docs", "/docs/"],
   ["Download", "/download/"],
 ];

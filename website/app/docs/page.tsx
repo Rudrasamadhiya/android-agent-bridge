@@ -135,6 +135,7 @@ export default function Docs() {
           <h2 id="mcp">MCP tools</h2>
           <p>What your agent sees after <code>init</code>:</p>
           <Table head={["Tool", "Purpose"]} rows={TOOLS} />
+          <p>The server also offers six ready-made prompts (in Claude Code: <code>/mcp__phone__do_in_app</code>, <code>/mcp__phone__test_my_app</code> and others). See <a href="../start/#mcp-prompts">Get started</a> for the list and more prompts to try.</p>
           <p>Any MCP client works with this configuration:</p>
           <pre className="codeblock"><code>{`{
   "mcpServers": {

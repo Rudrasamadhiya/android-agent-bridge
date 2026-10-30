@@ -4,6 +4,8 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import { asset } from "@/lib/site";
 import CopyCmd from "./CopyCmd";
 import Tilt from "./Tilt";
+import Link from "next/link";
+import { PromptCard } from "./CopyBlock";
 
 const ease = [0.2, 0.7, 0.2, 1] as const;
 
@@ -349,4 +351,31 @@ export function useCountUp(to: number | undefined, run: boolean) {
     return () => cancelAnimationFrame(id);
   }, [to, run]);
   return v;
+}
+
+const TRY = [
+  "Open YouTube on my phone and search for lofi music.",
+  "Read my phone's notifications and summarise them by app.",
+  "Turn media volume to 30% and switch on Do Not Disturb.",
+  "Test the sign-up flow in my app and give me a bug list.",
+  "Send ./report.pdf to my phone and tell me where it landed.",
+  "Take a screenshot of my phone and tell me what's on screen.",
+];
+
+export function TryPrompts() {
+  return (
+    <section className="sec" id="try">
+      <div className="wrap">
+        <p className="eyebrow">Try it</p>
+        <Title>Just *ask.*</Title>
+        <p className="lede">Paste any of these into your agent once the phone is connected. Click to copy.</p>
+        <div className="try-grid">
+          {TRY.map((t, i) => (
+            <Reveal key={t} delay={(i % 3) * 0.06}><PromptCard text={t} /></Reveal>
+          ))}
+        </div>
+        <p className="try-more"><Link className="btn btn-ghost" href="/start/#prompts">More prompts and the full setup guide →</Link></p>
+      </div>
+    </section>
+  );
 }

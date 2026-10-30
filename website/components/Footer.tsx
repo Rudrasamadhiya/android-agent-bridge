@@ -3,7 +3,7 @@ import { GITHUB, NPM, VERSION, asset } from "@/lib/site";
 
 const COLS = [
   { h: "Product", l: [["Features", "/#features"], ["Live demo", "/#demo"], ["Download", "/download/"], ["Compatibility", "/#compat"]] },
-  { h: "Docs", l: [["Quick start", "/docs/#quick-start"], ["Commands", "/docs/#commands"], ["MCP tools", "/docs/#mcp"], ["Troubleshooting", "/docs/#troubleshooting"]] },
+  { h: "Docs", l: [["Get started", "/start/"], ["Prompts to try", "/start/#prompts"], ["Commands", "/docs/#commands"], ["MCP tools", "/docs/#mcp"], ["Troubleshooting", "/docs/#troubleshooting"]] },
   { h: "Project", l: [["GitHub", GITHUB], ["npm", NPM], ["Releases", `${GITHUB}/releases`], ["Report an issue", `${GITHUB}/issues`]] },
   { h: "More", l: [["MIT license", `${GITHUB}/blob/main/LICENSE`], ["Security", "/#security"], ["Changelog", "/docs/#changelog"]] },
 ];

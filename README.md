@@ -1,119 +1,228 @@
-# android-agent-bridge
+<div align="center">
 
-Give your AI agent (Claude Code, Cursor, Antigravity, or anything that speaks MCP or runs shell commands) your **whole Android phone**: it sees the screen, taps, types, scrolls and opens apps — in any app, not just your own.
+<img src="https://raw.githubusercontent.com/Rudrasamadhiya/android-agent-bridge/main/docs/icon.svg" width="96" alt="Agent Bridge icon" />
 
-- **Pair once by QR code** over Wi-Fi, or plug in **USB**. Both work, and the phone switches to Wi-Fi when you unplug.
-- **Screenshots with numbered elements** so the agent says "tap 12" instead of guessing pixels, plus a **lettered grid** ("tap C7") for maps, games and images.
-- **Typing without the keyboard**: text goes straight into the field.
-- **Android 5.0 and newer** (phones from 2015 on).
+# Agent Bridge
 
+**Give your AI agent a real Android phone.**
+
+Claude Code, Cursor, Antigravity or any MCP agent can see your phone's screen, tap, type, open apps, change settings and move files.<br/>
+One `npx` command on the computer, one QR scan on the phone.
+
+[![npm](https://img.shields.io/npm/v/android-agent-bridge?color=3ddc97&label=npm)](https://www.npmjs.com/package/android-agent-bridge)
+[![npm downloads](https://img.shields.io/npm/dm/android-agent-bridge?color=3ddc97)](https://www.npmjs.com/package/android-agent-bridge)
+[![APK downloads](https://img.shields.io/github/downloads/Rudrasamadhiya/android-agent-bridge/total?color=3ddc97&label=app%20downloads)](https://github.com/Rudrasamadhiya/android-agent-bridge/releases)
+[![Android 5.0+](https://img.shields.io/badge/Android-5.0%2B-3ddc97)](#works-on)
+[![MCP](https://img.shields.io/badge/MCP-27%20tools%20%C2%B7%206%20prompts-3ddc97)](#for-agents)
+[![License: MIT](https://img.shields.io/badge/license-MIT-3ddc97)](LICENSE)
+
+[**Website**](https://rudrasamadhiya.github.io/android-agent-bridge/) · [**Get started**](https://rudrasamadhiya.github.io/android-agent-bridge/start/) · [**Docs**](https://rudrasamadhiya.github.io/android-agent-bridge/docs/) · [**Download the app**](https://github.com/Rudrasamadhiya/android-agent-bridge/releases/latest/download/agent-bridge.apk)
+
+<br/>
+
+<img src="https://raw.githubusercontent.com/Rudrasamadhiya/android-agent-bridge/main/docs/screens/app-connect.webp" width="230" alt="Connect tab" />&nbsp;&nbsp;
+<img src="https://raw.githubusercontent.com/Rudrasamadhiya/android-agent-bridge/main/docs/screens/uber-choose-trip.webp" width="230" alt="An agent choosing a ride in Uber" />&nbsp;&nbsp;
+<img src="https://raw.githubusercontent.com/Rudrasamadhiya/android-agent-bridge/main/docs/screens/app-transfer.webp" width="230" alt="Transfer tab" />
+
+</div>
+
+<br/>
+
+```text
+ ┌──────────────┐   MCP / CLI   ┌─────────────────────┐   Wi-Fi or USB   ┌──────────────────┐
+ │ Claude Code, │ ────────────▶ │ android-agent-bridge │ ◀──────────────▶ │ Agent Bridge app │
+ │ Cursor, …    │               │   (your computer)    │                  │   (your phone)   │
+ └──────────────┘               └─────────────────────┘                  └──────────────────┘
 ```
- ┌──────────────┐  MCP / CLI   ┌───────────────────┐  Wi-Fi or USB  ┌──────────────────┐
- │ Claude Code, │ ───────────▶ │ android-agent-    │ ◀────────────▶ │ Agent Bridge app │
- │ Cursor, …    │              │ bridge (computer) │   WebSocket    │ (phone)          │
- └──────────────┘              └───────────────────┘                └──────────────────┘
-```
 
-## 1. Install the app on the phone
+## Quick start
 
-**Install it over USB (step 2b).** `usb` installs the app for you.
+> You need an Android phone (5.0+), Node.js 20+ and, the first time only, a USB cable.
 
-Opening the APK from WhatsApp, a browser or a file manager often fails with Google Play Protect's **"App blocked to protect your device"**. In some countries (India and others), Play Protect blocks sideloaded apps that use accessibility, with no "install anyway" option. Installs over USB with adb aren't blocked, so use `usb` once. After that the phone also works over Wi-Fi.
-
-## 2a. Pair over Wi-Fi
-
-```bash
-npx android-agent-bridge start
-```
-
-Open **Agent Bridge** on the phone → **Scan QR code** → point it at the QR code in the terminal (or the bigger one at http://localhost:8350/pair). Then turn on the app's **accessibility service** with the button in the app.
-
-Phone and computer must be on the same Wi-Fi. On Windows, allow Node.js through the firewall when asked.
-
-## 2b. Or set up over USB
-
-Turn on USB debugging (Settings → About phone → tap Build number 7 times → Developer options → USB debugging), plug in, then:
+**1. Install the app and pair, over USB.** Turn on *USB debugging* (Settings → About phone → tap *Build number* 7 times → Developer options), plug in, then:
 
 ```bash
 npx android-agent-bridge usb
 ```
 
-This installs the app if needed, turns on its accessibility service, pairs it and starts the bridge. No QR code.
+It installs the app, switches on its accessibility service, pairs and starts the bridge.
 
-## 3. Connect your agent
+**2. Connect your agent.** For Claude Code:
 
 ```bash
-npx android-agent-bridge init
+claude mcp add phone -- npx -y android-agent-bridge
 ```
 
-Run it in your project: it adds the MCP server to `.mcp.json` (and `.cursor/mcp.json` with `--cursor`), plus a short guide for the agent. For other agents, add an MCP server with the command `npx -y android-agent-bridge`.
+**3. Ask it something.**
 
-Then ask: *"Open WhatsApp on my phone and read the last message from Mom."*
+> *"Open YouTube on my phone and search for lofi music."*
 
-## Tools
+That's it. From now on the phone also works over Wi-Fi: run `npx android-agent-bridge start` and it reconnects by itself.
+
+<details>
+<summary><b>Prefer Wi-Fi and a QR code?</b></summary>
+
+<br/>
+
+[Download the APK](https://github.com/Rudrasamadhiya/android-agent-bridge/releases/latest/download/agent-bridge.apk) and install it on the phone, then:
+
+```bash
+npx android-agent-bridge start
+```
+
+In the app: **Scan QR code** → point it at the code in your terminal (or the bigger one at `localhost:8350/pair`) → turn on the **accessibility service**. Phone and computer must be on the same Wi-Fi.
+
+If Play Protect says *"App blocked to protect your device"*, install over USB with `usb` instead. Installs over USB aren't blocked.
+
+</details>
+
+<details>
+<summary><b>Cursor, Antigravity, Windsurf and other MCP clients</b></summary>
+
+<br/>
+
+Run `npx android-agent-bridge init` in your project (it writes `.mcp.json`, plus `.cursor/mcp.json` with `--cursor`), or add this to your client's MCP config:
+
+```json
+{
+  "mcpServers": {
+    "phone": { "command": "npx", "args": ["-y", "android-agent-bridge"] }
+  }
+}
+```
+
+</details>
+
+## What it can do
+
+|  |  |
+|---|---|
+| 👁 **Sees the screen** | A numbered list of every button and field, and screenshots with each element boxed. Knows what's hidden under sheets and dialogs. |
+| 🔤 **Reads what apps hide** | On-device OCR reads the pixels when an app hides its controls from accessibility, so "tap Account" still works. Nothing leaves the phone. |
+| 👆 **Acts like a person** | Tap by number, text or position. Type into fields, scroll, swipe, long-press, Back and Home. Open any app by name. |
+| 🎛 **Runs the device** | Volume, brightness, flashlight, rotation, Do Not Disturb, settings pages, links, dialer, battery, notifications, clipboard. |
+| 📁 **AirDrop, both ways** | `phonectl send photo.jpg`, drag files onto `localhost:8350/drop`, or Share → Agent Bridge on the phone. Any size, no cloud. |
+| 📱 **Old phones welcome** | Android 5.0 (2015) and up. Where old Android can't do something, the computer does it over USB. |
+
+## Try these prompts
+
+Once the phone is connected, paste any of these into your agent:
+
+- *"Is my phone connected? Take a screenshot and tell me what's on screen."*
+- *"Read my phone's notifications and summarise them by app. Don't reply to anything."*
+- *"Turn media volume to 30%, brightness to 60 and switch on Do Not Disturb."*
+- *"Open my app (com.example.app) and test the sign-up flow like a QA tester. Give me a bug list."*
+- *"Send ./report.pdf to my phone and tell me where it was saved."*
+
+More in the [prompt library](https://rudrasamadhiya.github.io/android-agent-bridge/start/#prompts). Agents are told to ask before sending, posting, paying or deleting, and never to type passwords.
+
+## For agents
+
+The MCP server gives your agent **27 tools** and **6 ready-made prompts**. In Claude Code the prompts are slash commands:
+
+| Slash command | What it does |
+|---|---|
+| `/mcp__phone__phone_tour` | Checks the phone is connected and describes the screen |
+| `/mcp__phone__do_in_app` | Opens an app and carries out a task step by step |
+| `/mcp__phone__test_my_app` | QA walkthrough of an app, with a bug report |
+| `/mcp__phone__catch_up` | Summarises notifications, urgent first |
+| `/mcp__phone__set_up_phone` | Volume, brightness, Do Not Disturb in one go |
+| `/mcp__phone__send_to_phone` | Sends files and confirms where they landed |
+
+<details>
+<summary><b>All 27 tools</b></summary>
+
+<br/>
 
 | MCP tool | CLI | What it does |
 |---|---|---|
-| `phone_status` | `status` | connected phone, Android version, capabilities |
-| `phone_screen` | `screen [--mode marks\|grid\|both\|plain]` | screenshot with numbered elements / grid + element list |
-| `phone_elements` | `elements [--all] [--ocr]` | element list only (cheap, text); `--all` includes covered elements, `--ocr` adds screen text |
-| `phone_ocr` | `ocr` | text read from the screen pixels with positions (on-device ML Kit, offline) — finds controls apps hide from accessibility |
-| `phone_tap` | `tap <target> [--long]` | tap or long-press |
-| `phone_type` | `type <text> [--into t] [--submit]` | type into a field |
-| `phone_scroll` | `scroll <dir> [--in t]` | scroll the screen or a list |
-| `phone_swipe` | `swipe <from> <to>` | drag between two points |
+| `phone_status` | `status` | Connected phone, Android version, capabilities |
+| `phone_screen` | `screen [--mode marks\|grid\|both\|plain]` | Screenshot with numbered elements or a lettered grid |
+| `phone_elements` | `elements [--all] [--ocr]` | Element list only (cheap text) |
+| `phone_ocr` | `ocr` | Text read from the screen pixels, with positions |
+| `phone_tap` | `tap <target> [--long]` | Tap or long-press |
+| `phone_type` | `type <text> [--into t] [--submit]` | Type into a field |
+| `phone_scroll` | `scroll <dir> [--in t]` | Scroll the screen or a list |
+| `phone_swipe` | `swipe <from> <to>` | Drag between two points |
 | `phone_key` | `key <name>` | back, home, recents, notifications, quick_settings, enter, lock |
-| `phone_open_app` | `open <app>` | open an app by name or package |
-| `phone_apps` | `apps [filter]` | list installed apps |
-| `phone_wait_for` | `wait <text>` | wait for text to appear |
-| `phone_open_app` `store` | `launch <app> --store` | open an app, or its Play Store page if it isn't installed |
-| `phone_volume` | `volume [stream] [up\|down\|mute\|40%\|…]` | media, ring, notification, alarm, call volume |
-| `phone_brightness` | `brightness [0-100\|auto]` | screen brightness |
-| `phone_toggle` | `flashlight` · `rotation` · `dnd` · `ringer` | quick switches |
-| `phone_settings` | `settings <page>` | open wifi, bluetooth, display, battery… or an app's info page |
-| `phone_open_link` | `url <link>` | web pages and deep links |
-| `phone_dial` | `dial <number>` | dialer with the number filled in (never calls) |
-| `phone_web_search` | `search <query>` | web search on the phone |
-| `phone_device_info` | `battery` · `current` · `permissions` | battery, app in front, what the app may do |
-| `phone_notifications` | `notifications` | notifications received since the service started |
-| `phone_clipboard` | `clipboard [set <text>]` | read / set the clipboard |
-| `phone_wake` | `wake` | turn the screen on (stays PIN-locked) |
-| `phone_permissions` | `permissions grant` | switch on the one-time permissions over USB |
-| `phone_stop_app` | `stop <package>` | force-stop an app (USB) |
+| `phone_open_app` | `launch <app> [--store]` | Open an app by name, or its Play Store page |
+| `phone_apps` | `apps [filter]` | Installed apps |
+| `phone_wait_for` | `wait <text>` | Wait for text to appear |
+| `phone_volume` | `volume [stream] [level]` | Media, ring, notification, alarm, call volume |
+| `phone_brightness` | `brightness [0-100\|auto]` | Screen brightness |
+| `phone_toggle` | `flashlight` · `rotation` · `dnd` · `ringer` | Quick switches |
+| `phone_settings` | `settings <page>` | Wi-Fi, Bluetooth, display, battery… or an app's info page |
+| `phone_open_link` | `url <link>` | Web pages and deep links |
+| `phone_dial` | `dial <number>` | Dialer with the number filled in (never calls) |
+| `phone_web_search` | `search <query>` | Web search on the phone |
+| `phone_device_info` | `battery` · `current` | Battery, app in front |
+| `phone_notifications` | `notifications` | Notifications since the service started |
+| `phone_clipboard` | `clipboard [set <text>]` | Read or set the clipboard |
+| `phone_wake` | `wake` | Turn the screen on (stays PIN-locked) |
+| `phone_permissions` | `permissions [grant]` | Optional permissions, switched on over USB |
+| `phone_send_files` | `send <files…>` | Computer → phone |
+| `phone_received_files` | `received` | Files the phone sent to the computer |
+| `phone_stop_app` | `stop <package>` | Force-stop an app (USB) |
 
-A **target** is an element number (`12`), visible text (`Sign in`), a grid cell (`C7`) or pixels (`540,1200`). Text is matched in this order: exact or starts-with in the app → exact or starts-with in the screen text (OCR) → contains → the Android system bar.
+A **target** is an element number (`12`), visible text (`Sign in`), a grid cell (`C7`) or pixels (`540,1200`).
 
-The CLI commands need a running bridge: `start`, `usb`, or an agent's MCP session. All of them share one bridge.
+</details>
 
-## What works on which Android
+## From the terminal
 
-| | 5.0–6.0 | 7.0–10 | 11+ |
+Everything an agent can do, you can do too. `npm i -g android-agent-bridge` gives you the `phonectl` command; keep `start` running in another terminal.
+
+```bash
+phonectl status                         # is the phone connected?
+phonectl launch YouTube                 # open an app
+phonectl screen --out shot.jpg          # screenshot with numbered elements
+phonectl tap "Search"                   # tap by text, number, grid cell or pixels
+phonectl type "lofi music" --submit     # type and press Enter
+phonectl volume 40%                     # media volume
+phonectl send report.pdf                # send a file to the phone
+```
+
+Full reference: [Docs → Commands](https://rudrasamadhiya.github.io/android-agent-bridge/docs/#commands).
+
+## Works on
+
+| | Android 5–6 | Android 7–10 | Android 11+ |
 |---|---|---|---|
-| Element list, typing, clicking elements, back/home | ✅ | ✅ | ✅ |
+| Read the screen, type, tap elements, Back/Home | ✅ | ✅ | ✅ |
 | Tap anywhere (grid, pixels), swipes | over USB | ✅ | ✅ |
-| Screenshots | tap "Allow screen capture" once per session, or USB | same | ✅ built in |
-| Enter key | over USB | over USB | ✅ |
+| Screenshots | one-time prompt, or USB | one-time prompt, or USB | ✅ built in |
 
-"Over USB" means the bridge does it through adb when the phone is plugged in with USB debugging.
-
-Apps that block screen capture (banking, Netflix and similar) show up black in screenshots; their element list usually still works.
+Apps that block screen capture (banking, streaming) show up black in screenshots; their element list usually still works. iPhone isn't supported: iOS has no equivalent of Android's accessibility service for apps.
 
 ## Security
 
-- Only a computer holding the pairing secret from the QR code can connect. `npx android-agent-bridge pair --reset` makes a new secret; every phone then has to scan again.
-- Traffic on your Wi-Fi is not encrypted (plain WebSocket), so use it on networks you trust. Over USB it never leaves the cable.
-- Turn off the accessibility service in the app (or Android settings) to cut access at once.
-- The agent guide tells agents to ask before sending, paying or deleting, and never to type passwords.
+- **Paired, not public.** Only a computer holding the secret from your QR code can connect. `npx android-agent-bridge pair --reset` makes a new one.
+- **Stays on your network.** Wi-Fi or USB straight to your computer. No cloud, no account, no analytics. Wi-Fi traffic isn't encrypted, so use networks you trust; over USB it never leaves the cable.
+- **One switch to stop.** Turn off the accessibility service and access ends at once.
+- **Agents ask first.** The bundled guide tells agents to ask before sending, paying, posting or deleting, and never to type passwords.
 
-## Building the app
+<details>
+<summary><b>Troubleshooting</b></summary>
+
+<br/>
+
+- **"App blocked to protect your device":** install over USB with `npx android-agent-bridge usb`.
+- **No phone connected:** is `start` running? Same Wi-Fi? On Windows, allow Node.js through the firewall. Over USB, run `usb` again.
+- **Accessibility switch greyed out** (Android 13+): App info → ⋮ → Allow restricted settings.
+- **A tap opened nothing right after Home:** Android holds app starts for about 5 seconds after Home; run it again.
+
+</details>
+
+## Build from source
 
 ```bash
-cd android
-./gradlew assembleRelease
+git clone https://github.com/Rudrasamadhiya/android-agent-bridge
+cd android-agent-bridge && npm install
+cd android && ./gradlew assembleRelease   # JDK 17 + Android SDK
 ```
 
-Needs JDK 17 and the Android SDK (`ANDROID_HOME` or `android/local.properties`). The APK lands in `android/app/build/outputs/apk/release/`; copy it to `apk/agent-bridge.apk`.
+Copy `android/app/build/outputs/apk/release/app-release.apk` to `apk/agent-bridge.apk`. The website lives in `website/` (Next.js); `npm run build` there publishes it to `docs/`.
 
 ## License
 
-MIT
+[MIT](LICENSE) · Made by [Rudra Samadhiya](https://github.com/Rudrasamadhiya)
