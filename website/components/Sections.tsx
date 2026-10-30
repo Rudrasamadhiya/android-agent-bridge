@@ -1,5 +1,5 @@
 "use client";
-import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { motion, useMotionTemplate, useScroll, useTransform, type MotionValue } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { asset } from "@/lib/site";
 import CopyCmd from "./CopyCmd";
@@ -123,6 +123,21 @@ function Visual({ v }: { v: string }) {
   );
 }
 
+// On phones the cards stack like a deck: each one sticks near the top, the next slides up
+// over it, and the ones underneath shrink and dim a little as more pile on.
+function StackCard({ i, n, progress, children }: { i: number; n: number; progress: MotionValue<number>; children: ReactNode }) {
+  const start = i / n;
+  const scale = useTransform(progress, [start, 1], [1, 1 - (n - 1 - i) * 0.045]);
+  // darken rather than fade, so cards underneath stay solid and nothing ghosts through
+  const dim = useTransform(progress, [start, Math.min(1, start + 1.5 / n)], [1, i === n - 1 ? 1 : 0.45]);
+  const filter = useMotionTemplate`brightness(${dim})`;
+  return (
+    <motion.div className="stack-item" style={{ scale, top: `calc(84px + ${i * 14}px)` }}>
+      <motion.div style={{ filter }}>{children}</motion.div>
+    </motion.div>
+  );
+}
+
 // Pinned section that scrolls its cards sideways while you scroll down.
 export function FeatureRail() {
   const ref = useRef<HTMLElement>(null);
@@ -142,6 +157,7 @@ export function FeatureRail() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const x = useTransform(scrollYProgress, [0.05, 0.95], [0, -dist]);
   const prog = useTransform(scrollYProgress, [0.05, 0.95], ["0%", "100%"]);
+  const { scrollYProgress: stackProg } = useScroll({ target: track, offset: ["start start", "end end"] });
   return (
     <section className="rail" id="features" ref={ref} style={{ height: pinned ? `calc(100vh + ${dist}px)` : "auto" }}>
       <div className={pinned ? "rail-stick" : ""}>
@@ -153,17 +169,20 @@ export function FeatureRail() {
           <div className="rail-prog" aria-hidden="true"><motion.i style={{ width: prog }} /></div>
         </div>
         <motion.div className="rail-track" ref={track} style={pinned ? { x } : undefined}>
-          {FEATURES.map((f) => (
-            <Tilt as="article" className="fcard" key={f.k} max={7}>
-              <Visual v={f.vis} />
-              <div className="fcard-text">
-                <span className="fcard-k">{f.k}</span>
-                <h3>{f.t}</h3>
-                <p>{f.d}</p>
-                <div className="chips">{f.tools.map((t) => <code key={t}>{t}</code>)}</div>
-              </div>
-            </Tilt>
-          ))}
+          {FEATURES.map((f, i) => {
+            const card = (
+              <Tilt as="article" className="fcard" key={f.k} max={7}>
+                <Visual v={f.vis} />
+                <div className="fcard-text">
+                  <span className="fcard-k">{f.k}</span>
+                  <h3>{f.t}</h3>
+                  <p>{f.d}</p>
+                  <div className="chips">{f.tools.map((t) => <code key={t}>{t}</code>)}</div>
+                </div>
+              </Tilt>
+            );
+            return pinned ? card : <StackCard key={f.k} i={i} n={FEATURES.length} progress={stackProg}>{card}</StackCard>;
+          })}
         </motion.div>
       </div>
     </section>
