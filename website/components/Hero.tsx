@@ -74,10 +74,10 @@ export default function Hero() {
         </motion.p>
 
         <motion.div className="hero-actions" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.05, duration: 0.8, ease }}>
-          <a className="btn btn-lime" href={stats.apkUrl} download>
+          <a className="btn btn-lime" href={`${process.env.NEXT_PUBLIC_BASE ?? ""}/download/#install`}>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 4v11M8 11l4 4 4-4M5 19h14" /></svg>
-            Download for Android
-            <span className="btn-meta">APK · {APK_SIZE}</span>
+            Get the Android app
+            <span className="btn-meta">USB or Wi-Fi</span>
           </a>
           <div className="install">
             <div className="install-tabs" role="tablist">

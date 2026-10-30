@@ -23,7 +23,7 @@ export default function FinalCta() {
         <Title className="center">Hand your agent *the phone.*</Title>
         <p className="final-sub">Download the app, run one command, scan the code.</p>
         <div className="final-actions">
-          <a className="btn btn-lime" href={stats.apkUrl} download>Download for Android <span className="btn-meta">{APK_SIZE}</span></a>
+          <a className="btn btn-lime" href={`${process.env.NEXT_PUBLIC_BASE ?? ""}/download/#install`}>Get the Android app</a>
           <CopyCmd cmd="npx android-agent-bridge start" />
         </div>
       </div>

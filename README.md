@@ -16,7 +16,7 @@ One `npx` command on the computer, one QR scan on the phone.
 [![MCP](https://img.shields.io/badge/MCP-27%20tools%20%C2%B7%206%20prompts-3ddc97)](#for-agents)
 [![License: MIT](https://img.shields.io/badge/license-MIT-3ddc97)](LICENSE)
 
-[**Website**](https://rudrasamadhiya.github.io/android-agent-bridge/) · [**Get started**](https://rudrasamadhiya.github.io/android-agent-bridge/start/) · [**Docs**](https://rudrasamadhiya.github.io/android-agent-bridge/docs/) · [**Download the app**](https://github.com/Rudrasamadhiya/android-agent-bridge/releases/latest/download/agent-bridge.apk)
+[**Website**](https://rudrasamadhiya.github.io/android-agent-bridge/) · [**Get started**](https://rudrasamadhiya.github.io/android-agent-bridge/start/) · [**Docs**](https://rudrasamadhiya.github.io/android-agent-bridge/docs/) · [**Install the app**](https://rudrasamadhiya.github.io/android-agent-bridge/download/#install)
 
 <br/>
 
@@ -45,7 +45,9 @@ One `npx` command on the computer, one QR scan on the phone.
 npx android-agent-bridge usb
 ```
 
-It installs the app, switches on its accessibility service, pairs and starts the bridge.
+It installs the app, switches on its accessibility service, pairs and starts the bridge. If you don't have Android's adb tool, it downloads it from Google the first time.
+
+> **No cable?** On Android 11+, turn on *Wireless debugging* in Developer options and run `npx android-agent-bridge wifi`, then scan the QR code from *Pair device with QR code*.
 
 **2. Connect your agent.** For Claude Code:
 
@@ -72,7 +74,7 @@ npx android-agent-bridge start
 
 In the app: **Scan QR code** → point it at the code in your terminal (or the bigger one at `localhost:8350/pair`) → turn on the **accessibility service**. Phone and computer must be on the same Wi-Fi.
 
-If Play Protect says *"App blocked to protect your device"*, install over USB with `usb` instead. Installs over USB aren't blocked.
+If Play Protect says *"App blocked to protect your device"*, install from your computer instead with `usb` or `wifi`. Play Protect blocks sideloaded accessibility apps opened from a browser or chat app; installs through adb aren't affected.
 
 </details>
 
@@ -206,7 +208,7 @@ Apps that block screen capture (banking, streaming) show up black in screenshots
 
 <br/>
 
-- **"App blocked to protect your device":** install over USB with `npx android-agent-bridge usb`.
+- **"App blocked to protect your device":** install from your computer with `npx android-agent-bridge usb`, or `npx android-agent-bridge wifi` (Android 11+, no cable).
 - **No phone connected:** is `start` running? Same Wi-Fi? On Windows, allow Node.js through the firewall. Over USB, run `usb` again.
 - **Accessibility switch greyed out** (Android 13+): App info → ⋮ → Allow restricted settings.
 - **A tap opened nothing right after Home:** Android holds app starts for about 5 seconds after Home; run it again.

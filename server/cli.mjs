@@ -3,6 +3,7 @@
 //   (no command)      MCP server, launched by AI agents
 //   start             run the bridge and show the pairing QR code
 //   usb               set up a USB-connected phone (install, permissions, pair)
+//   wifi              same, without a cable (Android 11+ wireless debugging)
 //   init              add the MCP server + agent guide to the current project
 //   status | screen | elements | tap | type | scroll | swipe | key | open | apps | wait
 import fs from 'node:fs';
@@ -11,7 +12,8 @@ import { fileURLToPath } from 'node:url';
 import { Bridge } from './bridge.mjs';
 import { loadConfig, resetToken, APP_ID } from './config.mjs';
 import { lanAddresses, pairLink, qrTerminal } from './hub.mjs';
-import { adb, devices, pickSerial } from './adb.mjs';
+import { adb, devices, ensureAdb, pickSerial } from './adb.mjs';
+import readline from 'node:readline/promises';
 import { fmtSize } from './files.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -37,6 +39,7 @@ const HELP = `android-agent-bridge — let AI agents use your Android phone
 Setup
   start                      run the bridge and show the QR code to pair over Wi-Fi
   usb                        set up a phone plugged in over USB (install app, permissions, pair)
+  wifi [--code]              same without a cable: Android 11+ wireless debugging, pair by QR (--code: pairing code)
   init                       add the MCP server and agent guide to this project
   pair [--reset]             show the QR code again (--reset: new secret, phones must re-scan)
   (no command)               MCP server (what Claude Code / Cursor / Antigravity launch)
@@ -256,12 +259,82 @@ function findApk() {
 }
 
 async function usb() {
-  const { flags } = parseArgs(rest);
+  await ensureAdb().catch((e) => die(e.message));
   const list = await devices().catch((e) => die(e.message));
   if (!list.length) {
-    die('No phone found over USB.\n1. Settings → About phone → tap "Build number" 7 times (developer mode).\n2. Settings → Developer options → turn on USB debugging.\n3. Plug the phone in and accept the "Allow USB debugging?" prompt.');
+    die('No phone found over USB.\n1. Settings → About phone → tap "Build number" 7 times (developer mode).\n2. Settings → Developer options → turn on USB debugging.\n3. Plug the phone in and accept the "Allow USB debugging?" prompt.\n\nNo cable? Android 11+ can do this over Wi-Fi: npx android-agent-bridge wifi');
   }
-  const serial = await pickSerial();
+  await setUp(await pickSerial());
+}
+
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** Wireless-debugging services the phone announces on the network: [{ name, type, addr }]. */
+async function mdnsServices() {
+  const out = await adb(['mdns', 'services'], { serial: null }).catch(() => '');
+  return out.split('\n').map((l) => l.trim().split(/\s+/)).filter((p) => p.length >= 3 && p[1].startsWith('_adb-tls'))
+    .map(([name, type, addr]) => ({ name, type, addr }));
+}
+
+/**
+ * Same as `usb`, but without a cable: Android 11+ "Wireless debugging". The phone scans a QR code
+ * from this terminal (or types a pairing code), then adb installs and sets up the app over Wi-Fi.
+ * Installs through adb are not blocked by Play Protect.
+ */
+async function wifi() {
+  const { flags } = parseArgs(rest);
+  await ensureAdb().catch((e) => die(e.message));
+  console.log('\nInstall Agent Bridge over Wi-Fi (Android 11 or newer, phone on the same Wi-Fi as this computer)\n');
+  console.log('On the phone:');
+  console.log('  1. Settings → About phone → tap "Build number" 7 times (once, turns on developer options)');
+  console.log('  2. Settings → Developer options → Wireless debugging → turn it on');
+
+  let paired = false;
+  if (!flags.code) {
+    const name = 'agentbridge-' + Math.random().toString(36).slice(2, 7);
+    const pass = String(Math.floor(100000 + Math.random() * 900000));
+    console.log('  3. Tap "Pair device with QR code" and scan this:\n');
+    console.log(await qrTerminal(`WIFI:T:ADB;S:${name};P:${pass};;`));
+    console.log('Waiting for the phone… (no QR option? Ctrl+C and run: npx android-agent-bridge wifi --code)');
+    for (let i = 0; i < 180 && !paired; i++) {
+      const svc = (await mdnsServices()).find((s) => s.name === name && s.type.startsWith('_adb-tls-pairing'));
+      if (svc) {
+        const out = await adb(['pair', svc.addr, pass], { serial: null, timeout: 30000 }).catch((e) => e.message);
+        if (!/Successfully paired/i.test(out)) die('Pairing failed: ' + out);
+        paired = true;
+      } else await wait(1000);
+    }
+    if (!paired) die('The phone did not show up. Check both are on the same Wi-Fi, or try: npx android-agent-bridge wifi --code');
+  } else {
+    console.log('  3. Tap "Pair device with pairing code"\n');
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    const addr = (await rl.question('IP address & port shown in that dialog (e.g. 192.168.1.5:37000): ')).trim();
+    const code = (await rl.question('Wi-Fi pairing code: ')).trim();
+    rl.close();
+    const out = await adb(['pair', addr, code], { serial: null, timeout: 30000 }).catch((e) => e.message);
+    if (!/Successfully paired/i.test(out)) die('Pairing failed: ' + out);
+  }
+  console.log('✔ Paired with the phone for wireless debugging');
+
+  // after pairing the phone announces a connect service; adb usually connects to it by itself
+  let serial = null;
+  for (let i = 0; i < 30 && !serial; i++) {
+    const list = await devices().catch(() => []);
+    const wireless = list.find((d) => d.serial.includes('_adb-tls-connect') || /:\d+$/.test(d.serial));
+    if (wireless) { serial = wireless.serial; break; }
+    for (const s of (await mdnsServices()).filter((x) => x.type.startsWith('_adb-tls-connect'))) {
+      await adb(['connect', s.addr], { serial: null }).catch(() => {});
+    }
+    await wait(1000);
+  }
+  if (!serial) die('Paired, but could not connect. On the phone, check Wireless debugging is still on and run this again.');
+  console.log('✔ Connected over Wi-Fi');
+  await setUp(serial);
+}
+
+/** Installs the app if needed, switches on its accessibility service, pairs it and runs the bridge. */
+async function setUp(serial) {
+  const { flags } = parseArgs(rest);
   const sh = (...c) => adb(['shell', ...c], { serial });
   const cfg = loadConfig();
   const sdk = Number(await sh('getprop', 'ro.build.version.sdk'));
@@ -348,6 +421,7 @@ try {
   } else if (cmd === 'help' || cmd === '--help' || cmd === '-h') console.log(HELP);
   else if (cmd === 'start') await start();
   else if (cmd === 'usb') await usb();
+  else if (cmd === 'wifi') await wifi();
   else if (cmd === 'init') init();
   else if (cmd === 'pair') {
     const cfg = parseArgs(rest).flags.reset ? resetToken() : loadConfig();

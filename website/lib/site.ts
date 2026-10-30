@@ -1,6 +1,6 @@
 export const REPO = "Rudrasamadhiya/android-agent-bridge";
 export const PKG = "android-agent-bridge";
-export const VERSION = "0.1.2";
+export const VERSION = "0.1.3";
 export const GITHUB = `https://github.com/${REPO}`;
 export const NPM = `https://www.npmjs.com/package/${PKG}`;
 // Downloads go through GitHub Releases so they are counted; useStats swaps in the exact asset URL.

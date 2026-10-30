@@ -28,13 +28,32 @@ export default async function Download() {
       <div className="wrap">
         <p className="eyebrow">Download · v{VERSION}</p>
         <h1 className="disp page-title">Get <span className="hl">Agent Bridge</span></h1>
-        <p className="lede">Two parts: a small Android app on the phone, and the bridge on your computer. Both are free and open source.</p>
+        <p className="lede">Two parts: a small Android app on the phone, and the bridge on your computer. Both are free and open source. The easiest way to get the app onto the phone is from your computer: one command installs it, switches it on and pairs it.</p>
+
+        <h2 className="disp sub-title" id="install">Install from your computer</h2>
+        <div className="steps">
+          <div className="step"><span className="step-n">A</span><h3>With a USB cable</h3>
+            <p>Any Android 5.0+. On the phone: Settings → About phone → tap <i>Build number</i> 7 times, then Developer options → <i>USB debugging</i>. Plug in and run:</p>
+            <CopyCmd cmd="npx android-agent-bridge usb" /></div>
+          <div className="step"><span className="step-n">B</span><h3>No cable: over Wi-Fi</h3>
+            <p>Android 11+. Turn on Developer options as in A, then Developer options → <i>Wireless debugging</i>. Run this and scan the QR code from <i>Pair device with QR code</i>:</p>
+            <CopyCmd cmd="npx android-agent-bridge wifi" /></div>
+          <div className="step"><span className="step-n">C</span><h3>Connect your agent</h3>
+            <p>For Claude Code. Other agents: see <a href="../start/#agent">Get started</a>.</p>
+            <CopyCmd cmd="claude mcp add phone -- npx -y android-agent-bridge" /></div>
+        </div>
+        <p className="note">Both commands download Google's adb tool the first time if your computer doesn't have it. Installs through adb aren't blocked by Play Protect.</p>
+
+        <div className="protect">
+          <b>Why not just download the APK?</b>
+          <p>Google Play Protect blocks sideloaded apps that use Android's accessibility service when they're opened from a browser, chat app or file manager. You'll see “App blocked to protect your device”, often with no way to continue. Agent Bridge needs the accessibility service to see and tap the screen, so installing from your computer (above) is the reliable way. The APK is here if you know your phone allows it.</p>
+        </div>
 
         <div className="dl-grid">
-          <div className="dl-card dl-main">
-            <span className="dl-tag">Phone</span>
-            <h2>Android app</h2>
-            <p>Android 5.0 or newer. Arm phones (nearly all of them).</p>
+          <div className="dl-card">
+            <span className="dl-tag">Phone · fallback</span>
+            <h2>Android APK</h2>
+            <p>Android 5.0 or newer. May be blocked by Play Protect; use the commands above if it is.</p>
             <DownloadButton size={size} />
             <dl className="dl-meta">
               <div><dt>Version</dt><dd>{VERSION}</dd></div>
@@ -48,25 +67,13 @@ export default async function Download() {
             <div className="qr" dangerouslySetInnerHTML={{ __html: qr }} />
             <p>Scan with the phone's camera to download the APK directly.</p>
           </div>
-          <div className="dl-card">
+          <div className="dl-card dl-main">
             <span className="dl-tag">Computer</span>
             <h2>Bridge &amp; MCP server</h2>
             <p>Node.js 20 or newer on Windows, macOS or Linux. Nothing to install: run it with npx.</p>
             <CopyCmd cmd="npx android-agent-bridge start" />
             <CopyCmd cmd="npm i -g android-agent-bridge" />
           </div>
-        </div>
-
-        <h2 className="disp sub-title">Install the app</h2>
-        <div className="steps">
-          <div className="step"><span className="step-n">A</span><h3>Recommended: over USB</h3>
-            <p>Turn on Developer options → USB debugging, plug the phone in, run this. It installs, enables and pairs in one go, and Play Protect won't block it.</p>
-            <CopyCmd cmd="npx android-agent-bridge usb" /></div>
-          <div className="step"><span className="step-n">B</span><h3>Or from the APK</h3>
-            <p>Open the downloaded file on the phone and allow installs from your browser. If Play Protect blocks it, use the USB route instead.</p></div>
-          <div className="step"><span className="step-n">C</span><h3>Then pair</h3>
-            <p>Run <code>start</code> on the computer, open Agent Bridge, tap Scan and point it at the QR in your terminal.</p>
-            <CopyCmd cmd="npx android-agent-bridge start" /></div>
         </div>
         <p className="note">Older versions and release notes are on <a href={`${GITHUB}/releases`}>GitHub Releases</a>.</p>
       </div>

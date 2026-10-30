@@ -54,8 +54,10 @@ export default function Start() {
           <p><b>Recommended: over USB.</b> On the phone, open Settings → About phone and tap <i>Build number</i> seven times. Then go to Settings → Developer options and turn on <i>USB debugging</i>. Plug the phone in and run:</p>
           <CopyCmd cmd="npx android-agent-bridge usb" />
           <p>This installs the app, switches on its accessibility service, pairs it and starts the bridge. Accept the “Allow USB debugging?” prompt on the phone. You can skip step 2.</p>
-          <p><b>Or download the APK</b> ({APK_SIZE}) and open it on the phone. If Play Protect blocks it, use the USB route above.</p>
-          <p><a className="btn btn-lime" href={APK_LATEST}>Download the APK</a></p>
+          <p><b>No cable? Over Wi-Fi</b> (Android 11+): in Developer options turn on <i>Wireless debugging</i>, run this, then tap <i>Pair device with QR code</i> on the phone and scan the code in your terminal.</p>
+          <CopyCmd cmd="npx android-agent-bridge wifi" />
+          <p>Both commands fetch Google's adb tool the first time if your computer doesn't have it.</p>
+          <p><b>Why not the APK?</b> Google Play Protect blocks sideloaded apps that use the accessibility service when they're opened from a browser or chat app (“App blocked to protect your device”). Installing from your computer isn't affected. If your phone allows it, the <a href={APK_LATEST}>APK ({APK_SIZE})</a> works too.</p>
 
           <h2 id="pair">2 · Start and pair</h2>
           <p>Skip this if you used <code>usb</code>. Otherwise, with the phone and computer on the same Wi-Fi:</p>

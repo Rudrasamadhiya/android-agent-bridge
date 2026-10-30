@@ -9,6 +9,7 @@ const GROUPS: { id: string; h: string; rows: Row[] }[] = [
   { id: "setup", h: "Setup", rows: [
     ["phonectl start", "Runs the bridge and prints the QR code to scan. A bigger one is at localhost:8350/pair."],
     ["phonectl usb", "For a phone plugged in with USB debugging: installs the app, turns it on, pairs and runs the bridge. No QR code."],
+    ["phonectl wifi", "Same as usb without a cable (Android 11+): turn on Wireless debugging, scan the QR from Pair device with QR code. --code pairs with a code instead."],
     ["phonectl init", "Adds the MCP server to .mcp.json and a short agent guide to the current project."],
     ["phonectl pair", "Shows the QR code again. --reset makes a new secret; every phone must scan again."],
     ["phonectl status", "The connected phone, how it is connected, and what it can do."],
@@ -145,7 +146,7 @@ export default function Docs() {
 
           <h2 id="troubleshooting">Troubleshooting</h2>
           <ul className="doc-list">
-            <li><b>“App blocked to protect your device”:</b> install over USB with <code>phonectl usb</code>.</li>
+            <li><b>“App blocked to protect your device”:</b> Play Protect blocks sideloaded accessibility apps opened from a browser or chat app. Install from your computer instead: <code>npx android-agent-bridge usb</code>, or with no cable on Android 11+, <code>npx android-agent-bridge wifi</code>.</li>
             <li><b>No phone connected:</b> is <code>start</code> running? Same Wi-Fi? On Windows, allow Node.js through the firewall. Over USB, run <code>phonectl usb</code> again to restore the tunnel.</li>
             <li><b>Accessibility switch greyed out</b> (Android 13+): App info → ⋮ → Allow restricted settings.</li>
             <li><b>A tap opened nothing right after Home:</b> Android holds app starts for about 5 seconds after Home. The commands retry, but run it again if needed.</li>
@@ -153,6 +154,14 @@ export default function Docs() {
           </ul>
 
           <h2 id="changelog">Changelog</h2>
+          <div className="change">
+            <div className="change-head"><b>v0.1.3</b><span>October 2026</span></div>
+            <ul className="doc-list">
+              <li>New <code>wifi</code> command: install and pair over Wi-Fi with Android 11+ wireless debugging, no cable.</li>
+              <li><code>usb</code> and <code>wifi</code> download Google's adb tool by themselves when the computer doesn't have it.</li>
+              <li>The website's download buttons now lead to the install guide, so nobody hits Play Protect's block.</li>
+            </ul>
+          </div>
           <div className="change">
             <div className="change-head"><b>v0.1.2</b><span>October 2026</span></div>
             <ul className="doc-list">
