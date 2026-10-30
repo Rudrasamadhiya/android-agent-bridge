@@ -1,5 +1,5 @@
 "use client";
-import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll, useSpring, useTransform } from "motion/react";
 import { useRef, useState } from "react";
 import { asset } from "@/lib/site";
 import Rain from "./Rain";
@@ -34,13 +34,18 @@ const STEPS: Step[] = [
   },
 ];
 
+const EASE = [0.25, 0.8, 0.25, 1] as const;
+
 export default function LiveDemo() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const [i, setI] = useState(0);
   useMotionValueEvent(scrollYProgress, "change", (p) => setI(Math.min(STEPS.length - 1, Math.floor(p * STEPS.length * 0.999))));
-  const bar = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-  const rot = useTransform(scrollYProgress, [0, 1], [-4, 4]);
+  // springs smooth out the scroll-linked motion so it glides instead of tracking every wheel tick
+  const smooth = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.5 });
+  const bar = useTransform(smooth, [0, 1], ["0%", "100%"]);
+  const rot = useTransform(smooth, [0, 1], [-3, 3]);
+  const lift = useTransform(smooth, [0, 0.5, 1], [24, 0, -24]);
   const s = STEPS[i];
 
   return (
@@ -53,17 +58,19 @@ export default function LiveDemo() {
             <p className="eyebrow">Live session · recorded on a real phone</p>
             <div className="demo-num" aria-hidden="true">
               <AnimatePresence mode="popLayout">
-                <motion.span key={i} initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "-100%", opacity: 0 }} transition={{ duration: 0.5, ease: [0.2, 0.7, 0.2, 1] }}>
+                <motion.span key={i} initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "-100%", opacity: 0 }} transition={{ duration: 0.45, ease: EASE }}>
                   {String(i + 1).padStart(2, "0")}
                 </motion.span>
               </AnimatePresence>
             </div>
-            <AnimatePresence mode="wait">
-              <motion.div key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.35 }}>
-                <h3 className="demo-title">{s.title}</h3>
-                <p className="demo-body">{s.body}</p>
-              </motion.div>
-            </AnimatePresence>
+            <div className="swap">
+              <AnimatePresence initial={false}>
+                <motion.div key={i} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4, ease: EASE }}>
+                  <h3 className="demo-title">{s.title}</h3>
+                  <p className="demo-body">{s.body}</p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
             <div className="demo-steps">
               {STEPS.map((st, k) => <span key={k} className={k === i ? "on" : k < i ? "done" : ""}>{st.title}</span>)}
             </div>
@@ -72,31 +79,33 @@ export default function LiveDemo() {
 
           <div className="demo-term">
             <div className="term-bar"><i /><i /><i /><span>claude → phone</span></div>
-            <AnimatePresence mode="wait">
-              <motion.div key={i} className="term-body" initial="h" animate="v" exit={{ opacity: 0 }} variants={{ v: { transition: { staggerChildren: 0.18 } } }}>
-                <motion.div className="t-in" variants={{ h: { opacity: 0, x: -8 }, v: { opacity: 1, x: 0 } }}>{s.cmd}</motion.div>
+            <div className="swap">
+            <AnimatePresence initial={false}>
+              <motion.div key={i} className="term-body" initial="h" animate="v" exit={{ opacity: 0, transition: { duration: 0.2 } }} variants={{ v: { transition: { staggerChildren: 0.07 } } }}>
+                <motion.div className="t-in" variants={{ h: { opacity: 0, x: -6 }, v: { opacity: 1, x: 0, transition: { duration: 0.25 } } }}>{s.cmd}</motion.div>
                 {s.out.map((o, k) => (
-                  <motion.div key={k} className={o.startsWith("✓") ? "t-ok" : o.startsWith("phonectl") ? "t-in" : "t-out"} variants={{ h: { opacity: 0, x: -8 }, v: { opacity: 1, x: 0 } }}>{o}</motion.div>
+                  <motion.div key={k} className={o.startsWith("✓") ? "t-ok" : o.startsWith("phonectl") ? "t-in" : "t-out"} variants={{ h: { opacity: 0, x: -6 }, v: { opacity: 1, x: 0, transition: { duration: 0.25 } } }}>{o}</motion.div>
                 ))}
               </motion.div>
             </AnimatePresence>
+            </div>
           </div>
 
-          <motion.div className="demo-phone" style={{ rotate: rot }}>
+          <motion.div className="demo-phone" style={{ rotate: rot, y: lift }}>
             <div className="device">
               <div className="device-screen">
                 <AnimatePresence mode="popLayout">
-                  <motion.img key={s.img} src={asset(`/screens/${s.img}.webp`)} alt={`Uber, ${s.title} step`} initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.45 }} />
+                  <motion.img key={s.img} src={asset(`/screens/${s.img}.webp`)} alt={`Uber, ${s.title} step`} initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35, ease: EASE }} />
                 </AnimatePresence>
                 <AnimatePresence>
                   {s.boxes.map((b, k) => (
                     <motion.div key={`${i}-${b.n}`} className="el-box" style={{ left: `${b.x}%`, top: `${b.y}%`, width: `${b.w}%`, height: `${b.h}%` }}
-                      initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ delay: 0.35 + k * 0.12, duration: 0.3 }}>
+                      initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ delay: 0.15 + k * 0.07, duration: 0.3, ease: EASE }}>
                       <span>{b.n}</span>
                     </motion.div>
                   ))}
                 </AnimatePresence>
-                {s.tap && <motion.i key={`tap-${i}`} className="tap-ring" style={{ left: `${s.tap[0]}%`, top: `${s.tap[1]}%` }} initial={{ scale: 0.3, opacity: 1 }} animate={{ scale: 2.2, opacity: 0 }} transition={{ duration: 0.9, delay: 0.1 }} />}
+                {s.tap && <motion.i key={`tap-${i}`} className="tap-ring" style={{ left: `${s.tap[0]}%`, top: `${s.tap[1]}%` }} initial={{ scale: 0.3, opacity: 1 }} animate={{ scale: 2.2, opacity: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} />}
               </div>
             </div>
           </motion.div>

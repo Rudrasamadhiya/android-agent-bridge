@@ -155,7 +155,9 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-in
 .manifesto-text span { transition: color 0.2s; }
 
 /* pinned live demo */
-.demo { position: relative; height: 480vh; }
+.demo { position: relative; height: 300vh; }
+.swap { display: grid; }
+.swap > * { grid-area: 1 / 1; }
 .demo-stick { position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; align-items: center; }
 .demo-fade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(var(--bg) 0%, transparent 22%, transparent 78%, var(--bg) 100%); }
 .demo-grid { position: relative; width: 100%; display: grid; grid-template-columns: 1fr 1fr min(300px, 36svh); gap: 48px; align-items: center; }
@@ -186,7 +188,7 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-in
 @keyframes boxpulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
 .tap-ring { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; border: 2px solid var(--lime); background: rgba(184, 255, 92, 0.2); pointer-events: none; }
 @media (max-width: 1000px) {
-  .demo { height: 420vh; }
+  .demo { height: 280vh; }
   .demo-grid { grid-template-columns: 1fr 150px; gap: 14px 18px; padding-top: 70px; }
   .demo-term { grid-column: 1 / -1; grid-row: 2; }
   .term-body { min-height: 130px; font-size: 11.5px; padding: 12px; }

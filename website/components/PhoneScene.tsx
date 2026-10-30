@@ -9,7 +9,7 @@ import { asset } from "@/lib/site";
 const SCREENS = ["app-connect", "app-transfer", "app-device"].map((n) => asset(`/screens/${n}.webp`));
 const W = 1.62, H = 3.36, D = 0.17;
 const SW = W - 0.12, SH = Math.min(H - 0.12, SW * (2000 / 900));
-const FIELD_Z = -1.6;
+const FROM_IN = new THREE.Vector3(-7.5, -1.2, -1.5), FROM_OUT = new THREE.Vector3(-7.5, 1.6, -2);
 
 // Cursor in normalised device coordinates, tracked on the whole window (the hero text sits
 // above the canvas). With no mouse (phones), a virtual cursor drifts in slow loops instead.
@@ -36,76 +36,39 @@ function cursor(ptr: Ptr, t: number) {
   return { x: Math.sin(t * 0.35) * 0.55, y: Math.sin(t * 0.5) * 0.35, live: false };
 }
 
-// A field of short dashes that the cursor pushes around. Each one is a spring tied to its
-// home spot: the cursor repels it, the spring pulls it back, damping settles it.
-function Field({ ptr, count }: { ptr: Ptr; count: number }) {
-  const mesh = useRef<THREE.InstancedMesh>(null);
-  const { viewport, camera, size } = useThree();
-  const vp = viewport.getCurrentViewport(camera, new THREE.Vector3(0, 0, FIELD_Z));
-  const sim = useMemo(() => {
-    const home = new Float32Array(count * 2), pos = new Float32Array(count * 2), vel = new Float32Array(count * 2), seed = new Float32Array(count);
+// A stream of glowing points flying along curves, from the computer into the phone (or back out).
+function Stream({ count, from, color, reverse = false, speed = 0.18 }: { count: number; from: THREE.Vector3; color: string; reverse?: boolean; speed?: number }) {
+  const ref = useRef<THREE.Points>(null);
+  const data = useMemo(() => {
+    const starts: THREE.Vector3[] = [], mids: THREE.Vector3[] = [], ends: THREE.Vector3[] = [], t = new Float32Array(count), v = new Float32Array(count);
     for (let i = 0; i < count; i++) {
-      // denser in a soft ring around the middle, sparse at the edges
-      const a = Math.random() * Math.PI * 2, r = Math.pow(Math.random(), 0.7);
-      home[i * 2] = Math.cos(a) * r * vp.width * 0.62;
-      home[i * 2 + 1] = Math.sin(a) * r * vp.height * 0.62;
-      pos[i * 2] = home[i * 2] * 1.6;
-      pos[i * 2 + 1] = home[i * 2 + 1] * 1.6;
-      seed[i] = Math.random() * 100;
+      starts.push(from.clone().add(new THREE.Vector3((Math.random() - 0.5) * 2.4, (Math.random() - 0.5) * 3.2, (Math.random() - 0.5) * 2)));
+      ends.push(new THREE.Vector3((Math.random() - 0.5) * SW * 0.9, (Math.random() - 0.5) * SH * 0.9, D / 2 + 0.02));
+      mids.push(new THREE.Vector3(from.x * 0.45 + (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 4, 1.6 + Math.random() * 1.6));
+      t[i] = Math.random();
+      v[i] = speed * (0.5 + Math.random());
     }
-    return { home, pos, vel, seed };
-    // rebuild the layout only when the canvas size changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count, size.width, size.height]);
-
-  useEffect(() => {
-    const m = mesh.current;
-    if (!m) return;
-    const palette = ["#3ddc97", "#3ddc97", "#3ddc97", "#b8ff5c", "#7aa7ff", "#5b6370"].map((c) => new THREE.Color(c));
-    for (let i = 0; i < count; i++) m.setColorAt(i, palette[Math.floor(Math.random() * palette.length)]);
-    if (m.instanceColor) m.instanceColor.needsUpdate = true;
-  }, [count]);
-
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-  useFrame((state, dt) => {
-    const m = mesh.current;
-    if (!m) return;
-    const k = Math.min(dt, 1 / 30) * 60; // frame-rate independent steps
-    const t = state.clock.elapsedTime;
-    const c = cursor(ptr, t);
-    const mx = (c.x * vp.width) / 2, my = (c.y * vp.height) / 2;
-    const R = Math.min(vp.width, vp.height) * 0.26, R2 = R * R;
-    const { home, pos, vel, seed } = sim;
+    return { starts, mids, ends, t, v, pos: new Float32Array(count * 3) };
+  }, [count, from, speed]);
+  const tmp = useMemo(() => new THREE.Vector3(), []);
+  useFrame((_, dt) => {
+    const { starts, mids, ends, t, v, pos } = data;
     for (let i = 0; i < count; i++) {
-      const ix = i * 2, iy = ix + 1;
-      const hx = home[ix] + Math.sin(t * 0.6 + seed[i]) * 0.06, hy = home[iy] + Math.cos(t * 0.5 + seed[i]) * 0.06;
-      let vx = vel[ix] + (hx - pos[ix]) * 0.018 * k, vy = vel[iy] + (hy - pos[iy]) * 0.018 * k;
-      const dx = pos[ix] - mx, dy = pos[iy] - my, d2 = dx * dx + dy * dy;
-      if (d2 < R2 && d2 > 1e-5) {
-        const d = Math.sqrt(d2), f = (1 - d / R) * (c.live ? 0.05 : 0.025) * k;
-        vx += (dx / d) * f; vy += (dy / d) * f;
-      }
-      const damp = Math.pow(0.9, k);
-      vx *= damp; vy *= damp;
-      pos[ix] += vx * k; pos[iy] += vy * k;
-      vel[ix] = vx; vel[iy] = vy;
-      // dashes point at the cursor and stretch with speed
-      const near = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / (R * 1.2));
-      dummy.position.set(pos[ix], pos[iy], FIELD_Z);
-      dummy.rotation.set(0, 0, Math.atan2(dy, dx));
-      const speed = Math.min(1, Math.hypot(vx, vy) * 18);
-      dummy.scale.set(0.3 + near * 1.6 + speed * 1.6, 0.7 + near * 0.6, 1);
-      dummy.updateMatrix();
-      m.setMatrixAt(i, dummy.matrix);
+      t[i] = (t[i] + v[i] * Math.min(dt, 0.05)) % 1;
+      const k = reverse ? 1 - t[i] : t[i];
+      const a = (1 - k) * (1 - k), b = 2 * (1 - k) * k, c = k * k;
+      tmp.set(0, 0, 0).addScaledVector(starts[i], a).addScaledVector(mids[i], b).addScaledVector(ends[i], c);
+      pos[i * 3] = tmp.x; pos[i * 3 + 1] = tmp.y; pos[i * 3 + 2] = tmp.z;
     }
-    m.instanceMatrix.needsUpdate = true;
+    if (ref.current) ref.current.geometry.attributes.position.needsUpdate = true;
   });
-
   return (
-    <instancedMesh ref={mesh} args={[undefined, undefined, count]} frustumCulled={false}>
-      <planeGeometry args={[0.09, 0.02]} />
-      <meshBasicMaterial transparent opacity={0.7} toneMapped={false} depthWrite={false} />
-    </instancedMesh>
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[data.pos, 3]} />
+      </bufferGeometry>
+      <pointsMaterial color={color} size={0.055} sizeAttenuation transparent opacity={0.85} blending={THREE.AdditiveBlending} depthWrite={false} />
+    </points>
   );
 }
 
@@ -198,21 +161,20 @@ function Phone({ ptr }: { ptr: Ptr }) {
       <mesh position={[W / 2 + 0.01, 0.75, 0]}><boxGeometry args={[0.03, 0.42, 0.07]} /><meshStandardMaterial color="#1a1d22" metalness={0.9} roughness={0.3} /></mesh>
       <mesh position={[W / 2 + 0.01, 0.2, 0]}><boxGeometry args={[0.03, 0.22, 0.07]} /><meshStandardMaterial color="#1a1d22" metalness={0.9} roughness={0.3} /></mesh>
       <Taps />
+      <Stream count={narrow ? 260 : 520} from={FROM_IN} color="#3ddc97" />
+      <Stream count={narrow ? 120 : 240} from={FROM_OUT} color="#7aa7ff" reverse speed={0.14} />
     </group>
   );
 }
 
 function Scene() {
   const ptr = usePointer();
-  const { size } = useThree();
-  const count = size.width < 700 ? 420 : 1000;
   return (
     <>
       <ambientLight intensity={0.35} />
       <directionalLight position={[3, 4, 5]} intensity={1.6} />
       <pointLight position={[-4, -2, 3]} intensity={30} color="#3ddc97" />
       <pointLight position={[4, 3, -2]} intensity={20} color="#7aa7ff" />
-      <Field ptr={ptr} count={count} />
       <Phone ptr={ptr} />
     </>
   );
