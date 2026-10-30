@@ -153,7 +153,15 @@ export default function Docs() {
 
           <h2 id="changelog">Changelog</h2>
           <div className="change">
-            <div className="change-head"><b>v{VERSION}</b><span>October 2026 · first public release</span></div>
+            <div className="change-head"><b>v0.1.1</b><span>October 2026</span></div>
+            <ul className="doc-list">
+              <li>QR scanner is now a portrait pop-up that slides up from the bottom, with a flash button.</li>
+              <li>Recent transfers: tap a file to open it, delete received files from the phone, clear the list.</li>
+              <li>Open folder button jumps to the received files (Samsung My Files opens right at the folder).</li>
+            </ul>
+          </div>
+          <div className="change">
+            <div className="change-head"><b>v0.1.0</b><span>October 2026 · first public release</span></div>
             <ul className="doc-list">
               <li>Android app (5.0+) with QR pairing over Wi-Fi and USB, Connect / Transfer / Device tabs.</li>
               <li>CLI and MCP server with 30+ tools: screen reading, taps, typing, gestures, apps, device controls.</li>
