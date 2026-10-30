@@ -35,7 +35,8 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
-import com.google.zxing.integration.android.IntentIntegrator
+import android.content.ActivityNotFoundException
+import android.content.pm.PackageManager
 import java.util.concurrent.Executors
 
 /**
@@ -48,6 +49,8 @@ class MainActivity : Activity() {
     private val REQ_CAPTURE = 41
     private val REQ_PICK = 42
     private val REQ_STORAGE = 43
+    private val REQ_CAMERA = 44
+    private val REQ_DELETE = 45
 
     // palette
     private val BG = Color.parseColor("#000000")
@@ -76,6 +79,10 @@ class MainActivity : Activity() {
     private lateinit var captureRow: Row
     private lateinit var storageCard: View
     private lateinit var recentList: LinearLayout
+    private lateinit var clearButton: TextView
+    private lateinit var folderRow: Row
+    private var scanner: ScanSheet? = null
+    private var pendingDelete: Transfers.Item? = null
     private lateinit var nameRow: Row
     private lateinit var writeRow: Row
     private lateinit var dndRow: Row
@@ -125,6 +132,7 @@ class MainActivity : Activity() {
         Status.unlisten(onChange)
         Transfers.unlisten(onChange)
         pulse?.cancel()
+        scanner?.dismiss()
         super.onPause()
     }
 
@@ -209,16 +217,18 @@ class MainActivity : Activity() {
         note("Or tap Share → Agent Bridge in any app. Files land in Downloads/Agent Bridge on the computer.")
 
         section("Receive from computer")
-        group(Row(R.drawable.ic_folder, "Downloads/${Transfers.FOLDER}", "Where files from the computer are saved"))
+        folderRow = Row(R.drawable.ic_open, "Open folder", "Downloads/${Transfers.FOLDER}", chevron = true) { openFolder() }
+        group(folderRow)
         storageCard = group(Row(R.drawable.ic_download, "Allow saving to Downloads", "Android ${Build.VERSION.RELEASE} asks once", chevron = true) {
             requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQ_STORAGE)
         })
         command("npx android-agent-bridge send photo.jpg", "Send from the terminal")
         command("http://localhost:8350/drop", "Or drag and drop in a browser on the computer")
 
-        section("Recent")
+        clearButton = sectionWithAction("Recent", "Clear") { confirmClear() }
         recentList = LinearLayout(this@MainActivity).apply { orientation = LinearLayout.VERTICAL }
         addView(recentList)
+        note("Tap a file to open it. Clearing the list doesn't delete any files.")
     }
 
     // ---------- Device ----------
@@ -295,12 +305,87 @@ class MainActivity : Activity() {
     }
 
     private fun scan() {
-        IntentIntegrator(this)
-            .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-            .setPrompt("Scan the QR code shown on your computer")
-            .setBeepEnabled(false)
-            .setOrientationLocked(false)
-            .initiateScan()
+        if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), REQ_CAMERA)
+            return
+        }
+        scanner = ScanSheet(this, { pair(it) }, { pasteLink() }).also { it.show() }
+    }
+
+    // ---------- files ----------
+
+    private fun openItem(t: Transfers.Item) {
+        io.execute {
+            val intent = Transfers.openIntent(this, t)
+            runOnUiThread {
+                when {
+                    intent == null -> Toast.makeText(this, if (t.outgoing) "The original file was moved or deleted" else "Not on this phone anymore", Toast.LENGTH_SHORT).show()
+                    else -> try { startActivity(intent) } catch (e: ActivityNotFoundException) {
+                        Toast.makeText(this, "No app on this phone can open ${t.name}", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(this, "Couldn't open ${t.name}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
+    /** Received files are deleted from the phone; for sent ones only the entry goes (the original is yours). */
+    private fun deleteItem(t: Transfers.Item) {
+        if (t.outgoing) {
+            AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+                .setTitle("Remove from the list?")
+                .setMessage("${t.name} stays on your phone and on the computer.")
+                .setPositiveButton("Remove") { _, _ -> Transfers.forget(this, t) }
+                .setNegativeButton("Cancel", null)
+                .show()
+            return
+        }
+        AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+            .setTitle("Delete from this phone?")
+            .setMessage("${t.name} will be deleted from ${Transfers.folderLabel(this)}. The copy on the computer stays.")
+            .setPositiveButton("Delete") { _, _ ->
+                io.execute {
+                    val r = try { Transfers.delete(this, t) } catch (e: Exception) { null }
+                    runOnUiThread {
+                        when (r) {
+                            is Transfers.Deleted.Done -> Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show()
+                            is Transfers.Deleted.Missing -> Toast.makeText(this, "Already gone; removed from the list", Toast.LENGTH_SHORT).show()
+                            is Transfers.Deleted.Confirm -> {
+                                pendingDelete = t
+                                startIntentSenderForResult(r.sender, REQ_DELETE, null, 0, 0, 0)
+                            }
+                            null -> Toast.makeText(this, "Couldn't delete ${t.name}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun confirmClear() {
+        AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+            .setTitle("Clear recent transfers?")
+            .setMessage("Only the list is cleared. Files stay on this phone and on the computer.")
+            .setPositiveButton("Clear") { _, _ -> Transfers.clear(this) }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    /** Shows where received files are, in the phone's own file manager when it can. */
+    private fun openFolder() {
+        if (Transfers.canWritePublic(this)) {
+            for (i in Transfers.folderIntents(this)) {
+                try { startActivity(i); return } catch (e: ActivityNotFoundException) { } catch (e: SecurityException) { }
+            }
+        }
+        AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+            .setTitle("Received files")
+            .setMessage("They are saved in:\n\n${Transfers.folderLabel(this)}\n\nOpen your Files app and go there.")
+            .setPositiveButton("Copy path") { _, _ -> copy(Transfers.folderLabel(this)) }
+            .setNegativeButton("OK", null)
+            .show()
     }
 
     private fun input(hint: String, value: String = "") = EditText(this).apply {
@@ -358,6 +443,10 @@ class MainActivity : Activity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQ_CAMERA) {
+            if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) scan()
+            else Toast.makeText(this, "No camera access. Use \"Enter pairing link\" instead.", Toast.LENGTH_LONG).show()
+        }
         refresh()
     }
 
@@ -375,11 +464,15 @@ class MainActivity : Activity() {
                 if (uris.isNotEmpty()) sendAll(uris)
                 return
             }
-        }
-        val r = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
-        if (r != null) {
-            r.contents?.let { pair(it) }
-            return
+            REQ_DELETE -> {
+                val t = pendingDelete
+                pendingDelete = null
+                if (resultCode == RESULT_OK && t != null) {
+                    Transfers.forget(this, t)
+                    Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show()
+                }
+                return
+            }
         }
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
@@ -437,15 +530,19 @@ class MainActivity : Activity() {
 
         // transfer
         storageCard.visibility = if (Transfers.canWritePublic(this)) View.GONE else View.VISIBLE
+        folderRow.sub(Transfers.folderLabel(this))
         recentList.removeAllViews()
         val items = Transfers.history(this)
+        clearButton.visibility = if (items.isEmpty()) View.GONE else View.VISIBLE
         if (items.isEmpty()) recentList.addView(groupOf(listOf(Row(R.drawable.ic_tab_transfer, "Nothing yet", "Files you send or receive show up here"))))
         else recentList.addView(groupOf(items.take(12).map { t ->
             Row(if (t.outgoing) R.drawable.ic_upload else R.drawable.ic_download, t.name,
                 (if (t.outgoing) "To computer" else "From computer") + " · " +
                     (if (t.size >= 0) Formatter.formatShortFileSize(this, t.size) + " · " else "") +
-                    DateUtils.getRelativeTimeSpanString(t.time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)).apply {
+                    DateUtils.getRelativeTimeSpanString(t.time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS),
+                onClick = if (t.ok) ({ openItem(t) }) else null).apply {
                 if (!t.ok) trailing("Failed", RED, chevron = false)
+                button(R.drawable.ic_trash, if (t.outgoing) "Remove from list" else "Delete from phone") { deleteItem(t) }
             }
         }))
 
@@ -503,6 +600,21 @@ class MainActivity : Activity() {
             subView.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
 
+        /** A small round icon button at the end of the row, separate from tapping the row itself. */
+        fun button(icon: Int, desc: String, onTap: () -> Unit) {
+            view.setPadding(view.paddingLeft, view.paddingTop, dp(6), view.paddingBottom)
+            view.addView(ImageView(this@MainActivity).apply {
+                setImageResource(icon)
+                imageTintList = ColorStateList.valueOf(MUTED)
+                contentDescription = desc
+                setPadding(dp(10), dp(10), dp(10), dp(10))
+                background = RippleDrawable(ColorStateList.valueOf(Color.argb(40, 255, 255, 255)), null,
+                    GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.WHITE) })
+                isClickable = true
+                setOnClickListener { onTap() }
+            }, LinearLayout.LayoutParams(dp(42), dp(42)))
+        }
+
         fun trailing(v: String, color: Int, chevron: Boolean) {
             value.text = v
             value.setTextColor(color)
@@ -534,6 +646,25 @@ class MainActivity : Activity() {
     }
 
     private fun section(t: String) = building.addView(text(t, 14f, MUTED, bold = true).apply { setPadding(dp(4), dp(22), 0, dp(10)) })
+
+    /** A section heading with a small text action on the right, like "Recent ... Clear". */
+    private fun sectionWithAction(t: String, action: String, onClick: () -> Unit): TextView {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.BOTTOM
+            setPadding(dp(4), dp(22), 0, dp(6))
+        }
+        row.addView(text(t, 14f, MUTED, bold = true).apply { setPadding(0, 0, 0, dp(4)) }, LinearLayout.LayoutParams(0, -2, 1f))
+        val a = text(action, 14f, ACCENT, bold = true).apply {
+            setPadding(dp(12), dp(4), dp(8), dp(4))
+            background = RippleDrawable(ColorStateList.valueOf(Color.argb(40, 255, 255, 255)), null, rounded(Color.WHITE, 12, null))
+            isClickable = true
+            setOnClickListener { onClick() }
+        }
+        row.addView(a)
+        building.addView(row)
+        return a
+    }
 
     private fun group(vararg rows: Row): View = groupOf(rows.toList()).also { building.addView(it) }
 

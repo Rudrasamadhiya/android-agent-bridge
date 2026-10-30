@@ -11,8 +11,8 @@ android {
         applicationId = "io.github.rudrasamadhiya.agentbridge"
         minSdk = 21 // Android 5.0: phones from 2015 on
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.1"
         // phones are ARM; dropping x86 builds keeps the OCR native libraries out of the APK twice
         ndk { abiFilters += listOf("armeabi-v7a", "arm64-v8a") }
     }
