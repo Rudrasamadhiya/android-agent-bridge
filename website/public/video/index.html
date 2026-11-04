@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Bridge — the film</title>
+<meta name="description" content="Give your AI agent a real Android phone. A 90-second film about Agent Bridge.">
+<meta property="og:title" content="Agent Bridge — the film">
+<meta property="og:description" content="Give your AI agent a real Android phone.">
+<meta property="og:image" content="https://rudrasamadhiya.github.io/android-agent-bridge/video/poster.jpg">
+<meta property="og:video" content="https://rudrasamadhiya.github.io/android-agent-bridge/video/agent-bridge.mp4">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../icon.svg">
+<style>
+  :root{color-scheme:dark}
+  html,body{margin:0;height:100%;background:#05070a;color:#e9eef2;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px 16px;box-sizing:border-box}
+  video{width:min(1200px,100%);aspect-ratio:16/9;border-radius:16px;background:#000;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+  h1{margin:0;font-size:clamp(22px,3vw,30px);font-weight:600;letter-spacing:-.02em}
+  h1 span{color:#3ddc97}
+  code{font:15px ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(61,220,151,.08);border:1px solid rgba(61,220,151,.4);padding:10px 16px;border-radius:12px}
+  a{color:#9aa4ae}
+</style>
+</head>
+<body>
+<main>
+  <video src="agent-bridge.mp4" poster="poster.jpg" controls playsinline preload="metadata"></video>
+  <h1>Give your agent <span>hands.</span></h1>
+  <code>npx android-agent-bridge usb</code>
+  <p><a href="../">Website</a> · <a href="https://github.com/Rudrasamadhiya/android-agent-bridge">GitHub</a> · <a href="https://www.npmjs.com/package/android-agent-bridge">npm</a></p>
+</main>
+</body>
+</html>

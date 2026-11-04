@@ -20,6 +20,12 @@ One `npx` command on the computer, one QR scan on the phone.
 
 <br/>
 
+<a href="https://rudrasamadhiya.github.io/android-agent-bridge/video/"><img src="https://raw.githubusercontent.com/Rudrasamadhiya/android-agent-bridge/main/docs/video/preview.gif" width="720" alt="Agent Bridge in 6 seconds: an agent taps, types and scrolls a real phone. Click to watch the full film." /></a>
+
+**[▶ Watch the film (1:30)](https://rudrasamadhiya.github.io/android-agent-bridge/video/)**
+
+<br/>
+
 <img src="https://raw.githubusercontent.com/Rudrasamadhiya/android-agent-bridge/main/docs/screens/app-connect.webp" width="230" alt="Connect tab" />&nbsp;&nbsp;
 <img src="https://raw.githubusercontent.com/Rudrasamadhiya/android-agent-bridge/main/docs/screens/uber-choose-trip.webp" width="230" alt="An agent choosing a ride in Uber" />&nbsp;&nbsp;
 <img src="https://raw.githubusercontent.com/Rudrasamadhiya/android-agent-bridge/main/docs/screens/app-transfer.webp" width="230" alt="Transfer tab" />
