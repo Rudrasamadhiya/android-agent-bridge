@@ -11,6 +11,7 @@ const LINKS = [
   ["Features", "/#features"],
   ["Docs", "/docs/"],
   ["Download", "/download/"],
+  ["Video", "/video/"],
 ];
 
 export default function Nav() {
