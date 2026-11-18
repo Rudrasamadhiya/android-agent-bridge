@@ -16,7 +16,7 @@ One `npx` command on the computer, one QR scan on the phone.
 [![MCP](https://img.shields.io/badge/MCP-27%20tools%20%C2%B7%206%20prompts-3ddc97)](#for-agents)
 [![License: MIT](https://img.shields.io/badge/license-MIT-3ddc97)](LICENSE)
 
-[**Website**](https://rudrasamadhiya.github.io/android-agent-bridge/) · [**Get started**](https://rudrasamadhiya.github.io/android-agent-bridge/start/) · [**Docs**](https://rudrasamadhiya.github.io/android-agent-bridge/docs/) · [**Install the app**](https://rudrasamadhiya.github.io/android-agent-bridge/download/#install)
+[**Website**](https://rudrasamadhiya.github.io/android-agent-bridge/) · [**Get started**](https://rudrasamadhiya.github.io/android-agent-bridge/start/) · [**Docs**](https://rudrasamadhiya.github.io/android-agent-bridge/docs/) · [**Install the app**](https://github.com/Rudrasamadhiya/android-agent-bridge/raw/main/apk/agent-bridge.apk)
 
 <br/>
 
